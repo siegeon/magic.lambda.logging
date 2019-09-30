@@ -9,8 +9,8 @@
     <PackageProjectUrl>https://github.com/polterguy/magic.lambda.logging</PackageProjectUrl>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\projects\personal\magic.lambda.logging\magic.lambda.logging\magic.lambda.logging.xml</DocumentationFile>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin/Release/netstandard2.0/magic.lambda.logging.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
