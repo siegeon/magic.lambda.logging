@@ -21,12 +21,24 @@ in for instance your _"Program.cs"_ as your application is starting up.
  * log4net called "log4net.config".
  */
 var log4netConfig = new XmlDocument();
-log4netConfig.Load(File.OpenRead(string.Concat(AppDomain.CurrentDomain.BaseDirectory, "log4net.config")));
-var repo = LogManager.CreateRepository(Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
-log4net.Config.XmlConfigurator.Configure(repo, log4netConfig["log4net"]);
+
+log4netConfig.Load(
+    File.OpenRead(
+        string.Concat(
+            AppDomain.CurrentDomain.BaseDirectory, 
+            "log4net.config")));
+
+var repo = 
+    LogManager.CreateRepository(
+        Assembly.GetEntryAssembly(), 
+        typeof(log4net.Repository.Hierarchy.Hierarchy));
+
+log4net.Config.XmlConfigurator.Configure(
+    repo, 
+    log4netConfig["log4net"]);
 ```
 
-Then you can create a _"log4net.config"_ file with the following content.
+Then you can create a _"log4net.config"_ file with for instance the following content.
 
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
