@@ -18,7 +18,7 @@ in for instance your _"Program.cs"_ as your application is starting up.
 ```csharp
 /*
  * This piece of code depends upon that you have an XML file configuring
- * log4net called "log4net.config".
+ * log4net called "log4net.config" at the base of your assembly's folder.
  */
 var log4netConfig = new XmlDocument();
 
