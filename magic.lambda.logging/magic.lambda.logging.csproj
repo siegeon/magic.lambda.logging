@@ -3,12 +3,20 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>magic.lambda.logging</PackageId>
     <Authors>Thomas Hansen</Authors>
-    <Description>Logging plugin for magic.lambda</Description>
+    <Company>Thomas Hansen</Company>
     <Copyright>Thomas Hansen, thomas@gaiasoul.com</Copyright>
+    <Description>Logging helper slots for Magic.</Description>
     <PackageProjectUrl>https://github.com/polterguy/magic.lambda.logging</PackageProjectUrl>
-    <PackageIconUrl>https://polterguy.github.io/favicon.ico</PackageIconUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/polterguy/magic.lambda.logging/master/LICENSE</PackageLicenseUrl>
+    <PackageIconUrl>https://polterguy.github.io/favicon.ico</PackageIconUrl>
+    <PackOnBuild>true</PackOnBuild>
+    <PackageVersion>1.1.0</PackageVersion>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/polterguy/magic.lambda.logging.git</RepositoryUrl>
+    <PackageTags>log4net, logging</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -18,7 +26,7 @@
   <ItemGroup>
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="magic.node" Version="1.0.0" />
-    <PackageReference Include="magic.node.extensions" Version="1.0.0" />
+    <PackageReference Include="magic.node.extensloggingns" Version="1.0.0" />
     <PackageReference Include="magic.signals.contracts" Version="1.0.1" />
   </ItemGroup>
 
