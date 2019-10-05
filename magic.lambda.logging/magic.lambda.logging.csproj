@@ -26,7 +26,7 @@
   <ItemGroup>
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="magic.node" Version="1.0.0" />
-    <PackageReference Include="magic.node.extensloggingns" Version="1.0.0" />
+    <PackageReference Include="magic.node.extensions" Version="1.0.0" />
     <PackageReference Include="magic.signals.contracts" Version="1.0.1" />
   </ItemGroup>
 
