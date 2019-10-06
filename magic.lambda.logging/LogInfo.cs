@@ -8,7 +8,7 @@ using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 
-namespace magic.json
+namespace magic.lambda.logging
 {
     /// <summary>
     /// [log.info] slot for logging informational pieces of log entries.
