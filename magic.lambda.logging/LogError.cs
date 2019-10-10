@@ -3,7 +3,7 @@
  * Licensed as Affero GPL unless an explicitly proprietary license has been obtained.
  */
 
-using log4net;
+using System;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
@@ -16,7 +16,16 @@ namespace magic.lambda.logging
     [Slot(Name = "log.error")]
     public class LogError : ISlot
     {
-        readonly static ILog _logger = LogManager.GetLogger(typeof(LogError));
+        readonly ILog _logger;
+
+        /// <summary>
+        /// Creates an instance of your type.
+        /// </summary>
+        /// <param name="logger">Actual implementation.</param>
+        public LogError(ILog logger)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
 
         /// <summary>
         /// Slot implementation.
