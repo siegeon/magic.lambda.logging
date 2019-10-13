@@ -7,16 +7,16 @@
     <Authors>Thomas Hansen</Authors>
     <Company>Thomas Hansen</Company>
     <Copyright>Thomas Hansen, thomas@gaiasoul.com</Copyright>
-    <Description>Logging helper slots for Magic.</Description>
+    <Description>Logging helper slots for Magic, allowing you to inject your own logging implementation, giving you the ability to create log entries from Hyperlambda.</Description>
     <PackageProjectUrl>https://github.com/polterguy/magic.lambda.logging</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/polterguy/magic.lambda.logging/master/LICENSE</PackageLicenseUrl>
     <PackageIconUrl>https://polterguy.github.io/favicon.ico</PackageIconUrl>
     <PackOnBuild>true</PackOnBuild>
-    <PackageVersion>1.1.9</PackageVersion>
+    <PackageVersion>2.0.0</PackageVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/polterguy/magic.lambda.logging.git</RepositoryUrl>
-    <PackageTags>log4net, logging</PackageTags>
+    <PackageTags>Logging</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -24,8 +24,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="magic.node.extensions" Version="1.1.3" />
-    <PackageReference Include="magic.signals.contracts" Version="1.1.9" />
+    <PackageReference Include="magic.node.extensions" Version="2.0.0" />
+    <PackageReference Include="magic.signals.contracts" Version="2.0.0" />
   </ItemGroup>
 
 </Project>
