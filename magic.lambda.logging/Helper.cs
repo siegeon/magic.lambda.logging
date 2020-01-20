@@ -22,7 +22,7 @@ namespace magic.lambda.logging
             var xResult = input.Evaluate();
             if (xResult.Count() == 0)
                 return "";
-            if (xResult.Count() == 1)
+            if (xResult.Count() == 1 && xResult.All(x => x.Children.Count() == 0))
                 return xResult.First().GetEx<string>();
             else
             {
