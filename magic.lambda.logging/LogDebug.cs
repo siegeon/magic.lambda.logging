@@ -34,7 +34,7 @@ namespace magic.lambda.logging
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            var entry = input.GetEx<string>();
+            var entry = Helper.GetLogInfo(signaler, input);
             _logger.Debug(entry);
         }
     }
