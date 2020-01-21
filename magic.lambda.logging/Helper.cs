@@ -3,11 +3,10 @@
  * See the enclosed LICENSE file for details.
  */
 
-using System;
 using System.Linq;
-using System.Text;
 using magic.node;
 using magic.node.extensions;
+using magic.node.expressions;
 using magic.signals.contracts;
 
 namespace magic.lambda.logging
@@ -19,6 +18,8 @@ namespace magic.lambda.logging
     {
         internal static string GetLogInfo(ISignaler signaler, Node input)
         {
+            if (!(input.Value is Expression))
+                return input.GetEx<string>();
             var xResult = input.Evaluate();
             if (xResult.Count() == 0)
                 return "";
