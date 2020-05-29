@@ -3,14 +3,20 @@
 
 [![Build status](https://travis-ci.org/polterguy/magic.lambda.logging.svg?master)](https://travis-ci.org/polterguy/magic.lambda.logging)
 
-Log4net wrapper slots for [Magic](https://github.com/polterguy/magic). More specifically, this project provides the following slots.
+Logging wrapper slots for [Magic](https://github.com/polterguy/magic). More specifically, this project provides the following slots.
 
 * __[log.info]__ - Information log entries, typically smaller pieces of information
 * __[log.debug]__ - Debug log entries, typically additional debugging information not enabled in production
 * __[log.error]__ - Error log entries, typically exceptions
 * __[log.fatal]__ - Fatal log entries, from which the application cannot recover from
 
-## Configuration
+By default the logging implementation used is [log4net](https://logging.apache.org/log4net/), but this can be easily overridden,
+by creating your own dependency injection association exchanging the default implementation class of the `ILog` interface with
+your own implementation. Notice, if you do this, you'll need to fiddle with the configuration process of _"magic.library"_ to
+avoid the default log4net service class being the one resolved when the IoC container is looking for an `ILog` implementation
+class.
+
+## Configuration (log4net)
 
 Notice, you're responsible for configuring Log4Net yourself, which can normally be done with something such as the following
 in for instance your _"Program.cs"_ as your application is starting up. Notice, _"magic.library"_ automatically wires up log4net

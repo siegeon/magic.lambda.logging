@@ -9,7 +9,7 @@ using magic.node.extensions;
 using magic.node.expressions;
 using magic.signals.contracts;
 
-namespace magic.lambda.logging
+namespace magic.lambda.logging.helpers
 {
     /*
      * Internal helper class to create a string out of parameters supplied to any one of our logging methods.

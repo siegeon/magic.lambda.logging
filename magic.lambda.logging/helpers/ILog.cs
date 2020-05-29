@@ -5,7 +5,7 @@
 
 using System;
 
-namespace magic.lambda.logging
+namespace magic.lambda.logging.helpers
 {
     /// <summary>
     /// Implementation interface to allow usage of any actual logging
