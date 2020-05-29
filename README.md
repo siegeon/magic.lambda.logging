@@ -3,7 +3,7 @@
 
 [![Build status](https://travis-ci.org/polterguy/magic.lambda.logging.svg?master)](https://travis-ci.org/polterguy/magic.lambda.logging)
 
-Log4net wrapper for [Magic](https://github.com/polterguy/magic). More specifically, this project provides the following slots.
+Log4net wrapper slots for [Magic](https://github.com/polterguy/magic). More specifically, this project provides the following slots.
 
 * __[log.info]__ - Information log entries, typically smaller pieces of information
 * __[log.debug]__ - Debug log entries, typically additional debugging information not enabled in production
@@ -13,7 +13,9 @@ Log4net wrapper for [Magic](https://github.com/polterguy/magic). More specifical
 ## Configuration
 
 Notice, you're responsible for configuring Log4Net yourself, which can normally be done with something such as the following
-in for instance your _"Program.cs"_ as your application is starting up.
+in for instance your _"Program.cs"_ as your application is starting up. Notice, _"magic.library"_ automatically wires up log4net
+with a similar type of configuration like this, saving log entries into your _"/logs/magic.log"_ file. You might want to fine
+grain your logging more, if you expect a huge amount of log entries.
 
 ```csharp
 /*
