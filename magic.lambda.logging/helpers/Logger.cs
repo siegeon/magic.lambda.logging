@@ -29,14 +29,14 @@ namespace magic.lambda.logging.helpers
             InsertLogEntry("debug", value);
         }
 
-        public void Error(string value, Exception exception = null)
+        public void Error(string value, Exception error = null)
         {
-            InsertLogEntry("error", value);
+            InsertLogEntry("error", value, error);
         }
 
-        public void Fatal(string value, Exception exception = null)
+        public void Fatal(string value, Exception error = null)
         {
-            InsertLogEntry("fatal", value);
+            InsertLogEntry("fatal", value, error);
         }
 
         public void Info(string value)
@@ -49,12 +49,12 @@ namespace magic.lambda.logging.helpers
             return InsertLogEntryAsync("debug", value);
         }
 
-        public Task ErrorAsync(string value, Exception exception = null)
+        public Task ErrorAsync(string value, Exception error = null)
         {
             return InsertLogEntryAsync("error", value);
         }
 
-        public Task FatalAsync(string value, Exception exception = null)
+        public Task FatalAsync(string value, Exception error = null)
         {
             return InsertLogEntryAsync("fatal", value);
         }
@@ -86,7 +86,7 @@ namespace magic.lambda.logging.helpers
         void InsertLogEntry(
             string type,
             string content,
-            Exception exception = null)
+            Exception error = null)
         {
             var lambda = new Node($"{DatabaseType}.connect", DatabaseName);
             var createNode = new Node($"{DatabaseType}.create");
@@ -94,8 +94,8 @@ namespace magic.lambda.logging.helpers
             var valuesNode = new Node("values");
             valuesNode.Add(new Node("type", type));
             valuesNode.Add(new Node("content", content));
-            if (exception != null)
-                valuesNode.Add(new Node("exception", exception.Message + "\r\n" + exception.StackTrace));
+            if (error != null)
+                valuesNode.Add(new Node("exception", error.Message + "\r\n" + error.StackTrace));
             createNode.Add(valuesNode);
             lambda.Add(createNode);
             Signaler.Signal("eval", new Node("", null, new Node[] { lambda }));
@@ -104,7 +104,7 @@ namespace magic.lambda.logging.helpers
         async Task InsertLogEntryAsync(
             string type,
             string content,
-            Exception exception = null)
+            Exception error = null)
         {
             var lambda = new Node($"wait.{DatabaseType}.connect", DatabaseName);
             var createNode = new Node($"wait.{DatabaseType}.create");
@@ -112,8 +112,8 @@ namespace magic.lambda.logging.helpers
             var valuesNode = new Node("values");
             valuesNode.Add(new Node("type", type));
             valuesNode.Add(new Node("content", content));
-            if (exception != null)
-                valuesNode.Add(new Node("exception", exception.Message + "\r\n" + exception.StackTrace));
+            if (error != null)
+                valuesNode.Add(new Node("exception", error.Message + "\r\n" + error.StackTrace));
             createNode.Add(valuesNode);
             lambda.Add(createNode);
             await Signaler.SignalAsync("wait.eval", new Node("", null, new Node[] { lambda }));
