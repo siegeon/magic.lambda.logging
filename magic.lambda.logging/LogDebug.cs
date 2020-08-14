@@ -4,7 +4,9 @@
  */
 
 using System;
+using System.Threading.Tasks;
 using magic.node;
+using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.logging.helpers;
 
@@ -14,15 +16,16 @@ namespace magic.lambda.logging
     /// [log.debug] slot for logging debug log entries.
     /// </summary>
     [Slot(Name = "log.debug")]
-    public class LogDebug : ISlot
+    [Slot(Name = "wait.log.debug")]
+    public class LogDebug : ISlotAsync, ISlot
     {
-        readonly ILog _logger;
+        readonly ILogger _logger;
 
         /// <summary>
         /// Creates an instance of your type.
         /// </summary>
         /// <param name="logger">Actual implementation.</param>
-        public LogDebug(ILog logger)
+        public LogDebug(ILogger logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -34,8 +37,17 @@ namespace magic.lambda.logging
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            var entry = Helper.GetLogInfo(signaler, input);
-            _logger.Debug(entry);
+            _logger.Debug(input.GetEx<string>());
+        }
+
+        /// <summary>
+        /// Slot implementation.
+        /// </summary>
+        /// <param name="signaler">Signaler that raised the signal.</param>
+        /// <param name="input">Arguments to slot.</param>
+        public async Task SignalAsync(ISignaler signaler, Node input)
+        {
+            await _logger.DebugAsync(input.GetEx<string>());
         }
     }
 }

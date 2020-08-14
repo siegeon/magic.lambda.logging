@@ -4,7 +4,9 @@
  */
 
 using System;
+using System.Threading.Tasks;
 using magic.node;
+using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.logging.helpers;
 
@@ -14,15 +16,16 @@ namespace magic.lambda.logging
     /// [log.error] slot for logging error log entries.
     /// </summary>
     [Slot(Name = "log.fatal")]
-    public class LogFatal : ISlot
+    [Slot(Name = "wait.log.fatal")]
+    public class LogFatal : ISlotAsync, ISlot
     {
-        readonly ILog _logger;
+        readonly ILogger _logger;
 
         /// <summary>
         /// Creates an instance of your type.
         /// </summary>
         /// <param name="logger">Actual implementation.</param>
-        public LogFatal(ILog logger)
+        public LogFatal(ILogger logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -32,10 +35,19 @@ namespace magic.lambda.logging
         /// </summary>
         /// <param name="signaler">Signaler that raised the signal.</param>
         /// <param name="input">Arguments to slot.</param>
+        public async Task SignalAsync(ISignaler signaler, Node input)
+        {
+            await _logger.FatalAsync(input.GetEx<string>());
+        }
+
+        /// <summary>
+        /// Slot implementation.
+        /// </summary>
+        /// <param name="signaler">Signaler that raised the signal.</param>
+        /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            var entry = Helper.GetLogInfo(signaler, input);
-            _logger.Fatal(entry);
+            _logger.Fatal(input.GetEx<string>());
         }
     }
 }
