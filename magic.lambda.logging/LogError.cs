@@ -35,9 +35,9 @@ namespace magic.lambda.logging
         /// </summary>
         /// <param name="signaler">Signaler that raised the signal.</param>
         /// <param name="input">Arguments to slot.</param>
-        public async Task SignalAsync(ISignaler signaler, Node input)
+        public void Signal(ISignaler signaler, Node input)
         {
-            await _logger.ErrorAsync(input.GetEx<string>());
+            _logger.Error(input.GetEx<string>());
         }
 
         /// <summary>
@@ -45,9 +45,9 @@ namespace magic.lambda.logging
         /// </summary>
         /// <param name="signaler">Signaler that raised the signal.</param>
         /// <param name="input">Arguments to slot.</param>
-        public void Signal(ISignaler signaler, Node input)
+        public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            _logger.Error(input.GetEx<string>());
+            await _logger.ErrorAsync(input.GetEx<string>());
         }
     }
 }

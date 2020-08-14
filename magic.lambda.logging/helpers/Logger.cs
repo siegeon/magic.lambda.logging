@@ -24,26 +24,6 @@ namespace magic.lambda.logging.helpers
 
         #region [ -- Interface implementations -- ]
 
-        public async Task DebugAsync(string value)
-        {
-            await InsertLogEntryAsync("debug", value);
-        }
-
-        public async Task ErrorAsync(string value, Exception exception = null)
-        {
-            await InsertLogEntryAsync("error", value);
-        }
-
-        public async Task FatalAsync(string value, Exception exception = null)
-        {
-            await InsertLogEntryAsync("fatal", value);
-        }
-
-        public async Task InfoAsync(string value)
-        {
-            await InsertLogEntryAsync("info", value);
-        }
-
         public void Debug(string value)
         {
             InsertLogEntry("debug", value);
@@ -62,6 +42,26 @@ namespace magic.lambda.logging.helpers
         public void Info(string value)
         {
             InsertLogEntry("info", value);
+        }
+
+        public Task DebugAsync(string value)
+        {
+            return InsertLogEntryAsync("debug", value);
+        }
+
+        public Task ErrorAsync(string value, Exception exception = null)
+        {
+            return InsertLogEntryAsync("error", value);
+        }
+
+        public Task FatalAsync(string value, Exception exception = null)
+        {
+            return InsertLogEntryAsync("fatal", value);
+        }
+
+        public Task InfoAsync(string value)
+        {
+            return InsertLogEntryAsync("info", value);
         }
 
         #endregion
