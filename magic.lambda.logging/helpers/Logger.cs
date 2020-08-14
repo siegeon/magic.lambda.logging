@@ -51,12 +51,12 @@ namespace magic.lambda.logging.helpers
 
         public Task ErrorAsync(string value, Exception error = null)
         {
-            return InsertLogEntryAsync("error", value);
+            return InsertLogEntryAsync("error", value, error);
         }
 
         public Task FatalAsync(string value, Exception error = null)
         {
-            return InsertLogEntryAsync("fatal", value);
+            return InsertLogEntryAsync("fatal", value, error);
         }
 
         public Task InfoAsync(string value)
@@ -113,7 +113,7 @@ namespace magic.lambda.logging.helpers
             valuesNode.Add(new Node("type", type));
             valuesNode.Add(new Node("content", content));
             if (error != null)
-                valuesNode.Add(new Node("exception", error.Message + "\r\n" + error.StackTrace));
+                valuesNode.Add(new Node("exception", error.GetType() + "\r\n" + error.StackTrace));
             createNode.Add(valuesNode);
             lambda.Add(createNode);
             await Signaler.SignalAsync("wait.eval", new Node("", null, new Node[] { lambda }));
