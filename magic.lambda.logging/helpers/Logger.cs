@@ -11,11 +11,17 @@ using System.Threading.Tasks;
 
 namespace magic.lambda.logging.helpers
 {
+    /// <inheritdoc/>
     public class Logger : ILogger
     {
         readonly IServiceProvider _services;
         readonly IConfiguration _configuration;
 
+        /// <summary>
+        /// Constructs a new instance of the default ILogger implementation.
+        /// </summary>
+        /// <param name="services">IoC container</param>
+        /// <param name="configuration">Configuration instance</param>
         public Logger(IServiceProvider services, IConfiguration configuration)
         {
             _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -24,41 +30,49 @@ namespace magic.lambda.logging.helpers
 
         #region [ -- Interface implementations -- ]
 
+        /// <inheritdoc/>
         public void Debug(string value)
         {
             InsertLogEntry("debug", value);
         }
 
+        /// <inheritdoc/>
         public void Error(string value, Exception error = null)
         {
             InsertLogEntry("error", value, error);
         }
 
+        /// <inheritdoc/>
         public void Fatal(string value, Exception error = null)
         {
             InsertLogEntry("fatal", value, error);
         }
 
+        /// <inheritdoc/>
         public void Info(string value)
         {
             InsertLogEntry("info", value);
         }
 
+        /// <inheritdoc/>
         public Task DebugAsync(string value)
         {
             return InsertLogEntryAsync("debug", value);
         }
 
+        /// <inheritdoc/>
         public Task ErrorAsync(string value, Exception error = null)
         {
             return InsertLogEntryAsync("error", value, error);
         }
 
+        /// <inheritdoc/>
         public Task FatalAsync(string value, Exception error = null)
         {
             return InsertLogEntryAsync("fatal", value, error);
         }
 
+        /// <inheritdoc/>
         public Task InfoAsync(string value)
         {
             return InsertLogEntryAsync("info", value);
