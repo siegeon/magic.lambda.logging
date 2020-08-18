@@ -6,7 +6,6 @@
 using System;
 using System.Threading.Tasks;
 using magic.node;
-using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.logging.helpers;
 
@@ -37,7 +36,7 @@ namespace magic.lambda.logging
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            _logger.Info(input.GetEx<string>());
+            _logger.Info(Utilities.GetLogContent(input, signaler));
         }
 
         /// <summary>
@@ -47,7 +46,7 @@ namespace magic.lambda.logging
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            await _logger.InfoAsync(input.GetEx<string>());
+            await _logger.InfoAsync(Utilities.GetLogContent(input, signaler));
         }
     }
 }
