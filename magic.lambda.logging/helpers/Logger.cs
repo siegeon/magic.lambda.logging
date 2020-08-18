@@ -88,17 +88,24 @@ namespace magic.lambda.logging.helpers
             string content,
             Exception error = null)
         {
-            var lambda = new Node($"{DatabaseType}.connect", DatabaseName);
-            var createNode = new Node($"{DatabaseType}.create");
-            createNode.Add(new Node("table", "log_entries"));
-            var valuesNode = new Node("values");
-            valuesNode.Add(new Node("type", type));
-            valuesNode.Add(new Node("content", content));
-            if (error != null)
-                valuesNode.Add(new Node("exception", error.Message + "\r\n" + error.StackTrace));
-            createNode.Add(valuesNode);
-            lambda.Add(createNode);
-            Signaler.Signal("eval", new Node("", null, new Node[] { lambda }));
+            try
+            {
+                var lambda = new Node($"{DatabaseType}.connect", DatabaseName);
+                var createNode = new Node($"{DatabaseType}.create");
+                createNode.Add(new Node("table", "log_entries"));
+                var valuesNode = new Node("values");
+                valuesNode.Add(new Node("type", type));
+                valuesNode.Add(new Node("content", content));
+                if (error != null)
+                    valuesNode.Add(new Node("exception", error.Message + "\r\n" + error.StackTrace));
+                createNode.Add(valuesNode);
+                lambda.Add(createNode);
+                Signaler.Signal("eval", new Node("", null, new Node[] { lambda }));
+            }
+            catch
+            {
+                ; // Do nothing, logging database might not yet have been created.
+            }
         }
 
         async Task InsertLogEntryAsync(
@@ -106,17 +113,24 @@ namespace magic.lambda.logging.helpers
             string content,
             Exception error = null)
         {
-            var lambda = new Node($"wait.{DatabaseType}.connect", DatabaseName);
-            var createNode = new Node($"wait.{DatabaseType}.create");
-            createNode.Add(new Node("table", "log_entries"));
-            var valuesNode = new Node("values");
-            valuesNode.Add(new Node("type", type));
-            valuesNode.Add(new Node("content", content));
-            if (error != null)
-                valuesNode.Add(new Node("exception", error.GetType() + "\r\n" + error.StackTrace));
-            createNode.Add(valuesNode);
-            lambda.Add(createNode);
-            await Signaler.SignalAsync("wait.eval", new Node("", null, new Node[] { lambda }));
+            try
+            {
+                var lambda = new Node($"wait.{DatabaseType}.connect", DatabaseName);
+                var createNode = new Node($"wait.{DatabaseType}.create");
+                createNode.Add(new Node("table", "log_entries"));
+                var valuesNode = new Node("values");
+                valuesNode.Add(new Node("type", type));
+                valuesNode.Add(new Node("content", content));
+                if (error != null)
+                    valuesNode.Add(new Node("exception", error.GetType() + "\r\n" + error.StackTrace));
+                createNode.Add(valuesNode);
+                lambda.Add(createNode);
+                await Signaler.SignalAsync("wait.eval", new Node("", null, new Node[] { lambda }));
+            }
+            catch
+            {
+                ; // Do nothing, logging database might not yet have been created.
+            }
         }
 
         #endregion
