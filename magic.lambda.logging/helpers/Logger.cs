@@ -104,8 +104,8 @@ namespace magic.lambda.logging.helpers
 
         Node BuildLambda(string type, string content, Exception error, bool isAsync)
         {
-            var lambda = new Node(isAsync ? "wait." : "" + $"{_databaseType}.connect", _databaseName);
-            var createNode = new Node(isAsync ? "wait." : "" + $"{_databaseType}.create");
+            var lambda = new Node((isAsync ? "wait." : "") + $"{_databaseType}.connect", _databaseName);
+            var createNode = new Node((isAsync ? "wait." : "") + $"{_databaseType}.create");
             createNode.Add(new Node("table", "log_entries"));
             var valuesNode = new Node("values");
             valuesNode.Add(new Node("type", type));
