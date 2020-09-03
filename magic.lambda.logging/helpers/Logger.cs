@@ -14,8 +14,9 @@ namespace magic.lambda.logging.helpers
     /// <inheritdoc/>
     public class Logger : ILogger
     {
-        readonly IServiceProvider _services;
-        readonly IConfiguration _configuration;
+        readonly string _databaseType;
+        readonly string _databaseName;
+        readonly ISignaler _signaler;
 
         /// <summary>
         /// Constructs a new instance of the default ILogger implementation.
@@ -24,8 +25,9 @@ namespace magic.lambda.logging.helpers
         /// <param name="configuration">Configuration instance</param>
         public Logger(IServiceProvider services, IConfiguration configuration)
         {
-            _services = services ?? throw new ArgumentNullException(nameof(services));
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _databaseType = configuration.GetSection("magic:databases:default").Value;
+            _databaseName = configuration.GetSection("magic:logging:database").Value;
+            _signaler = services.GetService(typeof(ISignaler)) as ISignaler;;
         }
 
         #region [ -- Interface implementations -- ]
@@ -82,44 +84,13 @@ namespace magic.lambda.logging.helpers
 
         #region [ -- Private helper methods and properties -- ]
 
-        string DatabaseType
-        {
-            get => _configuration.GetSection("magic:databases:default").Value;
-        }
-
-        string DatabaseName
-        {
-            get => _configuration.GetSection("magic:logging:database").Value;
-        }
-
-        ISignaler Signaler
-        {
-            get => _services.GetService(typeof(ISignaler)) as ISignaler;
-        }
-
         void InsertLogEntry(
             string type,
             string content,
             Exception error = null)
         {
-            try
-            {
-                var lambda = new Node($"{DatabaseType}.connect", DatabaseName);
-                var createNode = new Node($"{DatabaseType}.create");
-                createNode.Add(new Node("table", "log_entries"));
-                var valuesNode = new Node("values");
-                valuesNode.Add(new Node("type", type));
-                valuesNode.Add(new Node("content", content));
-                if (error != null)
-                    valuesNode.Add(new Node("exception", error.Message + "\r\n" + error.StackTrace));
-                createNode.Add(valuesNode);
-                lambda.Add(createNode);
-                Signaler.Signal("eval", new Node("", null, new Node[] { lambda }));
-            }
-            catch
-            {
-                ; // Do nothing, logging database might not yet have been created.
-            }
+            Node lambda = BuildLambda(type, content, error, false);
+            _signaler.Signal("eval", new Node("", null, new Node[] { lambda }));
         }
 
         async Task InsertLogEntryAsync(
@@ -127,24 +98,23 @@ namespace magic.lambda.logging.helpers
             string content,
             Exception error = null)
         {
-            try
-            {
-                var lambda = new Node($"wait.{DatabaseType}.connect", DatabaseName);
-                var createNode = new Node($"wait.{DatabaseType}.create");
-                createNode.Add(new Node("table", "log_entries"));
-                var valuesNode = new Node("values");
-                valuesNode.Add(new Node("type", type));
-                valuesNode.Add(new Node("content", content));
-                if (error != null)
-                    valuesNode.Add(new Node("exception", error.GetType() + "\r\n" + error.StackTrace));
-                createNode.Add(valuesNode);
-                lambda.Add(createNode);
-                await Signaler.SignalAsync("wait.eval", new Node("", null, new Node[] { lambda }));
-            }
-            catch
-            {
-                ; // Do nothing, logging database might not yet have been created.
-            }
+            Node lambda = BuildLambda(type, content, error, true);
+            await _signaler.SignalAsync("wait.eval", new Node("", null, new Node[] { lambda }));
+        }
+
+        Node BuildLambda(string type, string content, Exception error, bool isAsync)
+        {
+            var lambda = new Node(isAsync ? "wait." : "" + $"{_databaseType}.connect", _databaseName);
+            var createNode = new Node(isAsync ? "wait." : "" + $"{_databaseType}.create");
+            createNode.Add(new Node("table", "log_entries"));
+            var valuesNode = new Node("values");
+            valuesNode.Add(new Node("type", type));
+            valuesNode.Add(new Node("content", content));
+            if (error != null)
+                valuesNode.Add(new Node("exception", error.GetType() + "\r\n" + error.StackTrace));
+            createNode.Add(valuesNode);
+            lambda.Add(createNode);
+            return lambda;
         }
 
         #endregion
