@@ -90,7 +90,7 @@ namespace magic.lambda.logging.helpers
         /// <param name="node">Lambda object that actually inserts item into log.</param>
         protected virtual void Signal(Node node)
         {
-            _signaler.Signal("eval", node);
+            _signaler.Signal("eval", node); // NOSONAR
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace magic.lambda.logging.helpers
         /// <param name="node">Lambda object that actually inserts item into log.</param>
         protected virtual Task SignalAsync(Node node)
         {
-            return _signaler.SignalAsync("wait.eval", node);
+            return _signaler.SignalAsync("wait.eval", node); // NOSONAR
         }
 
         #endregion
