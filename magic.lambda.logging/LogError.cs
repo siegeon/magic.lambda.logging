@@ -26,7 +26,7 @@ namespace magic.lambda.logging
         /// <param name="logger">Actual implementation.</param>
         public LogError(ILogger logger)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = logger;
         }
 
         /// <summary>
