@@ -62,6 +62,31 @@ namespace magic.lambda.logging.tests
             return provider.GetService<ISignaler>();
         }
 
+        public static IServiceProvider InitializeServices(Action<Node> functor)
+        {
+            var services = new ServiceCollection();
+            services.AddTransient<ISignaler, Signaler>();
+
+            var types = new SignalsProvider(InstantiateAllTypes<ISlot>(services));
+            services.AddTransient<ISignalsProvider>((svc) => types);
+            services.AddTransient<ILogger>((svc) =>
+            {
+                return new TestLogger(
+                    svc.GetService<ISignaler>(),
+                    svc.GetService<IConfiguration>(),
+                    functor);
+            });
+            var mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration
+                .SetupGet(x => x[It.Is<string>(x => x == "magic:databases:default")])
+                .Returns(() => "mysql");
+            mockConfiguration
+                .SetupGet(x => x[It.Is<string>(x => x == "magic:logging:database")])
+                .Returns(() => "magic");
+            services.AddTransient((svc) => mockConfiguration.Object);
+            return services.BuildServiceProvider();
+        }
+
         #region [ -- Private helper methods -- ]
 
         class TestLogger : Logger

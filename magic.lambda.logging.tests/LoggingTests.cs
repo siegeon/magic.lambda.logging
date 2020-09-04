@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Xunit;
 using magic.node;
 using magic.node.extensions;
+using magic.lambda.logging.helpers;
 
 namespace magic.lambda.logging.tests
 {
@@ -30,6 +31,24 @@ namespace magic.lambda.logging.tests
             {
                 Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:error\r\n            content:foo\r\n", node.ToHyperlambda());
             });
+        }
+
+        [Fact]
+        public void LogException()
+        {
+            var services = Common.InitializeServices((node) =>
+            {
+                Assert.Contains("exception:@\"System.ArgumentException", node.ToHyperlambda());
+            });
+            var logger = services.GetService(typeof(ILogger)) as ILogger;
+            try
+            {
+                throw new ArgumentException("foo");
+            }
+            catch (Exception err)
+            {
+                logger.Error("foo", err);
+            }
         }
 
         [Fact]
@@ -64,7 +83,6 @@ namespace magic.lambda.logging.tests
         {
             await Common.EvaluateAsync(@"wait.log.error:foo", (node) =>
             {
-                System.Console.WriteLine(node.ToHyperlambda());
                 Assert.Equal("\"\"\r\n   wait.mysql.connect:magic\r\n      wait.mysql.create\r\n         table:log_entries\r\n         values\r\n            type:error\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
