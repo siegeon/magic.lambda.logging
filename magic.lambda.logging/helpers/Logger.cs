@@ -21,7 +21,7 @@ namespace magic.lambda.logging.helpers
         /// <summary>
         /// Constructs a new instance of the default ILogger implementation.
         /// </summary>
-        /// <param name="services">IoC container</param>
+        /// <param name="signaler">ISignaler implementation</param>
         /// <param name="configuration">Configuration instance</param>
         public Logger(ISignaler signaler, IConfiguration configuration)
         {
@@ -84,11 +84,19 @@ namespace magic.lambda.logging.helpers
 
         #region [ -- Protected virtual methods to intercept parts of implementation -- ]
 
+        /// <summary>
+        /// Override this method to intercept invocation towards [eval].
+        /// </summary>
+        /// <param name="node">Lambda object that actually inserts item into log.</param>
         protected virtual void Signal(Node node)
         {
             _signaler.Signal("eval", node);
         }
 
+        /// <summary>
+        /// Override this method to intercept invocation towards [eval].
+        /// </summary>
+        /// <param name="node">Lambda object that actually inserts item into log.</param>
         protected virtual Task SignalAsync(Node node)
         {
             return _signaler.SignalAsync("wait.eval", node);
