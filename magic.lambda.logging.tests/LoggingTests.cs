@@ -86,5 +86,17 @@ namespace magic.lambda.logging.tests
                 Assert.Equal("\"\"\r\n   wait.mysql.connect:magic\r\n      wait.mysql.create\r\n         table:log_entries\r\n         values\r\n            type:fatal\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
+
+        [Fact]
+        public void LogInfoChildren()
+        {
+            Common.Evaluate(@"log.info
+   .:foo
+   .:-
+   .:bar", (node) =>
+            {
+                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:info\r\n            content:foo-bar\r\n", node.ToHyperlambda());
+            });
+        }
     }
 }
