@@ -23,11 +23,11 @@ namespace magic.lambda.logging.helpers
         /// </summary>
         /// <param name="services">IoC container</param>
         /// <param name="configuration">Configuration instance</param>
-        public Logger(IServiceProvider services, IConfiguration configuration)
+        public Logger(ISignaler signaler, IConfiguration configuration)
         {
-            _databaseType = configuration.GetSection("magic:databases:default").Value;
-            _databaseName = configuration.GetSection("magic:logging:database").Value;
-            _signaler = services.GetService(typeof(ISignaler)) as ISignaler;;
+            _databaseType = configuration["magic:databases:default"];
+            _databaseName = configuration["magic:logging:database"];
+            _signaler = signaler;
         }
 
         #region [ -- Interface implementations -- ]
@@ -82,6 +82,20 @@ namespace magic.lambda.logging.helpers
 
         #endregion
 
+        #region [ -- Protected virtual methods to intercept parts of implementation -- ]
+
+        protected virtual void Signal(Node node)
+        {
+            _signaler.Signal("eval", node);
+        }
+
+        protected virtual Task SignalAsync(Node node)
+        {
+            return _signaler.SignalAsync("wait.eval", node);
+        }
+
+        #endregion
+
         #region [ -- Private helper methods and properties -- ]
 
         void InsertLogEntry(
@@ -90,7 +104,7 @@ namespace magic.lambda.logging.helpers
             Exception error = null)
         {
             Node lambda = BuildLambda(type, content, error, false);
-            _signaler.Signal("eval", new Node("", null, new Node[] { lambda }));
+            Signal(new Node("", null, new Node[] { lambda }));
         }
 
         async Task InsertLogEntryAsync(
@@ -99,7 +113,7 @@ namespace magic.lambda.logging.helpers
             Exception error = null)
         {
             Node lambda = BuildLambda(type, content, error, true);
-            await _signaler.SignalAsync("wait.eval", new Node("", null, new Node[] { lambda }));
+            await SignalAsync(new Node("", null, new Node[] { lambda }));
         }
 
         Node BuildLambda(string type, string content, Exception error, bool isAsync)
