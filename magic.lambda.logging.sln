@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{0080EF1F-A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "magic.lambda.logging", "magic.lambda.logging\magic.lambda.logging.csproj", "{0503D7F8-D15B-4B96-9CA9-672079AD1857}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "magic.lambda.logging.tests", "magic.lambda.logging.tests\magic.lambda.logging.tests.csproj", "{ACB4EF9B-7385-48CE-A898-8CA981FB99A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
