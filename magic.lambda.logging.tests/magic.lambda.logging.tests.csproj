@@ -25,9 +25,4 @@
   <ItemGroup>
     <ProjectReference Include="..\magic.lambda.logging\magic.lambda.logging.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Microsoft.Extensions.Configuration">
-    </Reference>
-  </ItemGroup>
 </Project>
