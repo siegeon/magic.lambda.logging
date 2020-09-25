@@ -14,7 +14,6 @@ namespace magic.lambda.logging
     /// [log.info] slot for logging informational pieces of log entries.
     /// </summary>
     [Slot(Name = "log.info")]
-    [Slot(Name = "wait.log.info")]
     public class LogInfo : ISlotAsync, ISlot
     {
         readonly ILogger _logger;

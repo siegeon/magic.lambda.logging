@@ -72,36 +72,36 @@ namespace magic.lambda.logging.tests
         [Fact]
         public async Task LogInfoAsync()
         {
-            await Common.EvaluateAsync(@"wait.log.info:foo", (node) =>
+            await Common.EvaluateAsync(@"log.info:foo", (node) =>
             {
-                Assert.Equal("\"\"\r\n   wait.mysql.connect:magic\r\n      wait.mysql.create\r\n         table:log_entries\r\n         values\r\n            type:info\r\n            content:foo\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:info\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
 
         [Fact]
         public async Task LogErrorAsync()
         {
-            await Common.EvaluateAsync(@"wait.log.error:foo", (node) =>
+            await Common.EvaluateAsync(@"log.error:foo", (node) =>
             {
-                Assert.Equal("\"\"\r\n   wait.mysql.connect:magic\r\n      wait.mysql.create\r\n         table:log_entries\r\n         values\r\n            type:error\r\n            content:foo\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:error\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
 
         [Fact]
         public async Task LogDebugAsync()
         {
-            await Common.EvaluateAsync(@"wait.log.debug:foo", (node) =>
+            await Common.EvaluateAsync(@"log.debug:foo", (node) =>
             {
-                Assert.Equal("\"\"\r\n   wait.mysql.connect:magic\r\n      wait.mysql.create\r\n         table:log_entries\r\n         values\r\n            type:debug\r\n            content:foo\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:debug\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
 
         [Fact]
         public async Task LogFatalAsync()
         {
-            await Common.EvaluateAsync(@"wait.log.fatal:foo", (node) =>
+            await Common.EvaluateAsync(@"log.fatal:foo", (node) =>
             {
-                Assert.Equal("\"\"\r\n   wait.mysql.connect:magic\r\n      wait.mysql.create\r\n         table:log_entries\r\n         values\r\n            type:fatal\r\n            content:foo\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:fatal\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
 

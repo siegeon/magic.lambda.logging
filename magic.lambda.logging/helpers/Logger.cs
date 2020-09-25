@@ -99,7 +99,7 @@ namespace magic.lambda.logging.helpers
         /// <param name="node">Lambda object that actually inserts item into log.</param>
         protected virtual Task SignalAsync(Node node)
         {
-            return _signaler.SignalAsync("wait.eval", node); // NOSONAR
+            return _signaler.SignalAsync("eval", node); // NOSONAR
         }
 
         #endregion
@@ -111,7 +111,7 @@ namespace magic.lambda.logging.helpers
             string content,
             Exception error = null)
         {
-            Node lambda = BuildLambda(type, content, error, false);
+            Node lambda = BuildLambda(type, content, error);
             Signal(new Node("", null, new Node[] { lambda }));
         }
 
@@ -120,14 +120,14 @@ namespace magic.lambda.logging.helpers
             string content,
             Exception error = null)
         {
-            Node lambda = BuildLambda(type, content, error, true);
+            Node lambda = BuildLambda(type, content, error);
             await SignalAsync(new Node("", null, new Node[] { lambda }));
         }
 
-        Node BuildLambda(string type, string content, Exception error, bool isAsync)
+        Node BuildLambda(string type, string content, Exception error)
         {
-            var lambda = new Node((isAsync ? "wait." : "") + $"{_databaseType}.connect", _databaseName);
-            var createNode = new Node((isAsync ? "wait." : "") + $"{_databaseType}.create");
+            var lambda = new Node($"{_databaseType}.connect", _databaseName);
+            var createNode = new Node($"{_databaseType}.create");
             createNode.Add(new Node("table", "log_entries"));
             var valuesNode = new Node("values");
             valuesNode.Add(new Node("type", type));

@@ -32,7 +32,7 @@ namespace magic.lambda.logging.tests
         {
             var signaler = Initialize(functor);
             var lambda = new Parser(hl).Lambda();
-            await signaler.SignalAsync("wait.eval", lambda);
+            await signaler.SignalAsync("eval", lambda);
             return lambda;
         }
 

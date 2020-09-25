@@ -14,7 +14,6 @@ namespace magic.lambda.logging
     /// [log.debug] slot for logging debug log entries.
     /// </summary>
     [Slot(Name = "log.debug")]
-    [Slot(Name = "wait.log.debug")]
     public class LogDebug : ISlotAsync, ISlot
     {
         readonly ILogger _logger;
