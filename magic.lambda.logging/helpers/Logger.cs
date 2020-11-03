@@ -15,7 +15,6 @@ namespace magic.lambda.logging.helpers
     public class Logger : ILogger
     {
         readonly string _databaseType;
-        readonly string _databaseName;
         readonly ISignaler _signaler;
 
         /// <summary>
@@ -26,7 +25,6 @@ namespace magic.lambda.logging.helpers
         public Logger(ISignaler signaler, IConfiguration configuration)
         {
             _databaseType = configuration["magic:databases:default"];
-            _databaseName = configuration["magic:logging:database"];
             _signaler = signaler;
         }
 
@@ -126,7 +124,7 @@ namespace magic.lambda.logging.helpers
 
         Node BuildLambda(string type, string content, Exception error)
         {
-            var lambda = new Node($"{_databaseType}.connect", _databaseName);
+            var lambda = new Node($"{_databaseType}.connect", "magic");
             var createNode = new Node($"{_databaseType}.create");
             createNode.Add(new Node("table", "log_entries"));
             var valuesNode = new Node("values");
