@@ -4,7 +4,6 @@
  */
 
 using System;
-using Microsoft.Extensions.Configuration;
 using magic.node;
 using magic.signals.contracts;
 using System.Threading.Tasks;
@@ -14,17 +13,14 @@ namespace magic.lambda.logging.helpers
     /// <inheritdoc/>
     public class Logger : ILogger
     {
-        readonly string _databaseType;
         readonly ISignaler _signaler;
 
         /// <summary>
         /// Constructs a new instance of the default ILogger implementation.
         /// </summary>
         /// <param name="signaler">ISignaler implementation</param>
-        /// <param name="configuration">Configuration instance</param>
-        public Logger(ISignaler signaler, IConfiguration configuration)
+        public Logger(ISignaler signaler)
         {
-            _databaseType = configuration["magic:databases:default"];
             _signaler = signaler;
         }
 
@@ -124,8 +120,8 @@ namespace magic.lambda.logging.helpers
 
         Node BuildLambda(string type, string content, Exception error)
         {
-            var lambda = new Node($"{_databaseType}.connect", "magic");
-            var createNode = new Node($"{_databaseType}.create");
+            var lambda = new Node("data.connect", "magic");
+            var createNode = new Node("data.create");
             createNode.Add(new Node("table", "log_entries"));
             var valuesNode = new Node("values");
             valuesNode.Add(new Node("type", type));
