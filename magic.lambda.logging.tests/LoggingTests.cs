@@ -4,10 +4,8 @@
  */
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using magic.node;
 using magic.node.extensions;
 using magic.lambda.logging.helpers;
 
@@ -20,7 +18,7 @@ namespace magic.lambda.logging.tests
         {
             Common.Evaluate(@"log.info:foo", (node) =>
             {
-                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:info\r\n            content:foo\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:info\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
 
@@ -29,7 +27,7 @@ namespace magic.lambda.logging.tests
         {
             Common.Evaluate(@"log.error:foo", (node) =>
             {
-                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:error\r\n            content:foo\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:error\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
 
@@ -56,7 +54,7 @@ namespace magic.lambda.logging.tests
         {
             Common.Evaluate(@"log.debug:foo", (node) =>
             {
-                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:debug\r\n            content:foo\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:debug\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
 
@@ -65,7 +63,7 @@ namespace magic.lambda.logging.tests
         {
             Common.Evaluate(@"log.fatal:foo", (node) =>
             {
-                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:fatal\r\n            content:foo\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:fatal\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
 
@@ -74,7 +72,7 @@ namespace magic.lambda.logging.tests
         {
             await Common.EvaluateAsync(@"log.info:foo", (node) =>
             {
-                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:info\r\n            content:foo\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:info\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
 
@@ -83,7 +81,7 @@ namespace magic.lambda.logging.tests
         {
             await Common.EvaluateAsync(@"log.error:foo", (node) =>
             {
-                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:error\r\n            content:foo\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:error\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
 
@@ -92,7 +90,7 @@ namespace magic.lambda.logging.tests
         {
             await Common.EvaluateAsync(@"log.debug:foo", (node) =>
             {
-                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:debug\r\n            content:foo\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:debug\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
 
@@ -101,7 +99,7 @@ namespace magic.lambda.logging.tests
         {
             await Common.EvaluateAsync(@"log.fatal:foo", (node) =>
             {
-                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:fatal\r\n            content:foo\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:fatal\r\n            content:foo\r\n", node.ToHyperlambda());
             });
         }
 
@@ -113,7 +111,7 @@ namespace magic.lambda.logging.tests
    .:-
    .:bar", (node) =>
             {
-                Assert.Equal("\"\"\r\n   mysql.connect:magic\r\n      mysql.create\r\n         table:log_entries\r\n         values\r\n            type:info\r\n            content:foo-bar\r\n", node.ToHyperlambda());
+                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:info\r\n            content:foo-bar\r\n", node.ToHyperlambda());
             });
         }
     }
