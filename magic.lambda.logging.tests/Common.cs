@@ -47,7 +47,6 @@ namespace magic.lambda.logging.tests
             {
                 return new TestLogger(
                     svc.GetService<ISignaler>(),
-                    svc.GetService<IConfiguration>(),
                     functor);
             });
             var mockConfiguration = new Mock<IConfiguration>();
@@ -73,7 +72,6 @@ namespace magic.lambda.logging.tests
             {
                 return new TestLogger(
                     svc.GetService<ISignaler>(),
-                    svc.GetService<IConfiguration>(),
                     functor);
             });
             var mockConfiguration = new Mock<IConfiguration>();
@@ -93,8 +91,8 @@ namespace magic.lambda.logging.tests
         {
             readonly Action<Node> _functor;
 
-            public TestLogger(ISignaler signaler, IConfiguration configuration, Action<Node> functor)
-                : base(signaler, configuration)
+            public TestLogger(ISignaler signaler, Action<Node> functor)
+                : base(signaler)
             {
                 _functor = functor;
             }
