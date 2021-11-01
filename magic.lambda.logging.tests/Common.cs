@@ -23,7 +23,7 @@ namespace magic.lambda.logging.tests
         static public Node Evaluate(string hl, Action<Node> functor)
         {
             var signaler = Initialize(functor);
-            var lambda = new Parser(hl).Lambda();
+            var lambda = HyperlambdaParser.Parse(hl);
             signaler.Signal("eval", lambda);
             return lambda;
         }
@@ -31,7 +31,7 @@ namespace magic.lambda.logging.tests
         static async public Task<Node> EvaluateAsync(string hl, Action<Node> functor)
         {
             var signaler = Initialize(functor);
-            var lambda = new Parser(hl).Lambda();
+            var lambda = HyperlambdaParser.Parse(hl);
             await signaler.SignalAsync("eval", lambda);
             return lambda;
         }
