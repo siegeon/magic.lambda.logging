@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using magic.node;
+using magic.node.contracts;
 using magic.signals.services;
 using magic.signals.contracts;
 using magic.lambda.logging.helpers;
@@ -48,7 +49,7 @@ namespace magic.lambda.logging.tests
                     svc.GetService<ISignaler>(),
                     functor);
             });
-            var mockConfiguration = new Mock<IConfiguration>();
+            var mockConfiguration = new Mock<IMagicConfiguration>();
             mockConfiguration
                 .SetupGet(x => x[It.Is<string>(x => x == "magic:databases:default")])
                 .Returns(() => "mysql");
@@ -73,7 +74,7 @@ namespace magic.lambda.logging.tests
                     svc.GetService<ISignaler>(),
                     functor);
             });
-            var mockConfiguration = new Mock<IConfiguration>();
+            var mockConfiguration = new Mock<IMagicConfiguration>();
             mockConfiguration
                 .SetupGet(x => x[It.Is<string>(x => x == "magic:databases:default")])
                 .Returns(() => "mysql");
