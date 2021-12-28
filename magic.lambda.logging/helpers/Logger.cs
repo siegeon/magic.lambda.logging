@@ -3,9 +3,13 @@
  */
 
 using System;
-using magic.node;
-using magic.signals.contracts;
+using System.Data;
+using System.Text;
 using System.Threading.Tasks;
+using magic.node;
+using magic.node.contracts;
+using magic.node.extensions;
+using magic.signals.contracts;
 
 namespace magic.lambda.logging.helpers
 {
@@ -13,14 +17,16 @@ namespace magic.lambda.logging.helpers
     public class Logger : ILogger
     {
         readonly ISignaler _signaler;
+        readonly IMagicConfiguration _magicConfiguration;
 
         /// <summary>
         /// Constructs a new instance of the default ILogger implementation.
         /// </summary>
-        /// <param name="signaler">ISignaler implementation</param>
-        public Logger(ISignaler signaler)
+        /// <param name="signaler">ISignaler implementation.</param>
+        public Logger(ISignaler signaler, IMagicConfiguration magicConfiguration)
         {
             _signaler = signaler;
+            _magicConfiguration = magicConfiguration;
         }
 
         #region [ -- Interface implementations -- ]
@@ -75,28 +81,6 @@ namespace magic.lambda.logging.helpers
 
         #endregion
 
-        #region [ -- Protected virtual methods to intercept parts of implementation -- ]
-
-        /// <summary>
-        /// Override this method to intercept invocation towards [eval].
-        /// </summary>
-        /// <param name="node">Lambda object that actually inserts item into log.</param>
-        protected virtual void Signal(Node node)
-        {
-            _signaler.Signal("eval", node); // NOSONAR
-        }
-
-        /// <summary>
-        /// Override this method to intercept invocation towards [eval].
-        /// </summary>
-        /// <param name="node">Lambda object that actually inserts item into log.</param>
-        protected virtual Task SignalAsync(Node node)
-        {
-            return _signaler.SignalAsync("eval", node); // NOSONAR
-        }
-
-        #endregion
-
         #region [ -- Private helper methods and properties -- ]
 
         void InsertLogEntry(
@@ -104,8 +88,22 @@ namespace magic.lambda.logging.helpers
             string content,
             Exception error = null)
         {
-            Node lambda = BuildLambda(type, content, error);
-            Signal(new Node("", null, new Node[] { lambda }));
+            // Retrieving IDbConnection to use.
+            var dbType = _magicConfiguration["magic:databases:default"];
+            var dbNode = new Node();
+            _signaler.Signal($".db-factory.connection.{dbType}", dbNode);
+            using (var connection = dbNode.Get<IDbConnection>())
+            {
+                // Opening database connection.
+                connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
+                connection.Open();
+
+                // Creating our insert commend.
+                using (var cmd = CreateCommand(connection, type, content, error))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
 
         async Task InsertLogEntryAsync(
@@ -113,23 +111,62 @@ namespace magic.lambda.logging.helpers
             string content,
             Exception error = null)
         {
-            Node lambda = BuildLambda(type, content, error);
-            await SignalAsync(new Node("", null, new Node[] { lambda }));
+            // Retrieving IDbConnection to use.
+            var dbType = _magicConfiguration["magic:databases:default"];
+            var dbNode = new Node();
+            await _signaler.SignalAsync($".db-factory.connection.{dbType}", dbNode);
+            using (var connection = dbNode.Get<IDbConnection>())
+            {
+                // Opening database connection.
+                connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
+                connection.Open();
+
+                // Creating our insert commend.
+                using (var cmd = CreateCommand(connection, type, content, error))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
 
-        Node BuildLambda(string type, string content, Exception error)
+        /*
+         * Creates an IDbCommand that inserts into log database, and returns the command to caller.
+         */
+        static IDbCommand CreateCommand(IDbConnection connection, string type, string content, Exception error)
         {
-            var lambda = new Node("data.connect", "magic");
-            var createNode = new Node("data.create");
-            createNode.Add(new Node("table", "log_entries"));
-            var valuesNode = new Node("values");
-            valuesNode.Add(new Node("type", type));
-            valuesNode.Add(new Node("content", content));
+            // Creating our SQL command.
+            var command = connection.CreateCommand();
+            var builder = new StringBuilder();
+            builder.Append("insert into log_entries (type, content");
             if (error != null)
-                valuesNode.Add(new Node("exception", error.GetType() + "\r\n" + error.StackTrace));
-            createNode.Add(valuesNode);
-            lambda.Add(createNode);
-            return lambda;
+                builder.Append(", exception");
+            builder.Append(") values (@arg1, @arg2");
+            if (error != null)
+                builder.Append(", @arg3");
+            builder.Append(")");
+            command.CommandText = builder.ToString();
+
+            // Adding arguments to invocation.
+            var typeArg = command.CreateParameter();
+            typeArg.ParameterName = "@arg1";
+            typeArg.Value = type;
+            command.Parameters.Add(typeArg);
+
+            var contentArg = command.CreateParameter();
+            contentArg.ParameterName = "@arg2";
+            contentArg.Value = content;
+            command.Parameters.Add(contentArg);
+
+            if (error != null)
+            {
+                var exceptionArg = command.CreateParameter();
+                exceptionArg.ParameterName = "@arg3";
+                exceptionArg.Value = error.StackTrace;
+                command.Parameters.Add(exceptionArg);
+            }
+
+            // Returning command to caller.
+            return command;
         }
 
         #endregion

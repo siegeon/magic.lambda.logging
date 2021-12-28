@@ -3,9 +3,9 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using magic.node.extensions;
 using magic.lambda.logging.helpers;
 
 namespace magic.lambda.logging.tests
@@ -15,103 +15,134 @@ namespace magic.lambda.logging.tests
         [Fact]
         public void LogInfo()
         {
-            Common.Evaluate(@"log.info:foo", (node) =>
-            {
-                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:info\r\n            content:foo\r\n", node.ToHyperlambda());
-            });
+            ConnectionFactory.Arguments.Clear();
+            Common.Evaluate(@"log.info:foo");
+            Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
+            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal(2, ConnectionFactory.Arguments.Count);
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "info"));
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
         }
 
         [Fact]
         public void LogError()
         {
-            Common.Evaluate(@"log.error:foo", (node) =>
-            {
-                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:error\r\n            content:foo\r\n", node.ToHyperlambda());
-            });
+            ConnectionFactory.Arguments.Clear();
+            Common.Evaluate(@"log.error:foo");
+            Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
+            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal(2, ConnectionFactory.Arguments.Count);
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "error"));
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
         }
 
         [Fact]
         public void LogException()
         {
-            var services = Common.InitializeServices((node) =>
-            {
-                Assert.Contains("exception:@\"System.ArgumentException", node.ToHyperlambda());
-            });
+            ConnectionFactory.Arguments.Clear();
+            var services = Common.InitializeServices();
             var logger = services.GetService(typeof(ILogger)) as ILogger;
             try
             {
-                throw new ArgumentException("foo");
+                throw new ArgumentException("fooERROR");
             }
             catch (Exception err)
             {
                 logger.Error("foo", err);
             }
+            Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
+            Assert.Equal("insert into log_entries (type, content, exception) values (@arg1, @arg2, @arg3)", ConnectionFactory.CommandText);
+            Assert.Equal(3, ConnectionFactory.Arguments.Count);
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "error"));
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg3" && x.Item2.Contains("magic.lambda.logging.tests.LoggingTests.LogException")));
         }
 
         [Fact]
         public void LogDebug()
         {
-            Common.Evaluate(@"log.debug:foo", (node) =>
-            {
-                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:debug\r\n            content:foo\r\n", node.ToHyperlambda());
-            });
+            ConnectionFactory.Arguments.Clear();
+            Common.Evaluate(@"log.debug:foo-bar");
+            Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
+            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal(2, ConnectionFactory.Arguments.Count);
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "debug"));
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo-bar"));
         }
 
         [Fact]
         public void LogFatal()
         {
-            Common.Evaluate(@"log.fatal:foo", (node) =>
-            {
-                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:fatal\r\n            content:foo\r\n", node.ToHyperlambda());
-            });
+            ConnectionFactory.Arguments.Clear();
+            Common.Evaluate(@"log.fatal:foo");
+            Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
+            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal(2, ConnectionFactory.Arguments.Count);
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "fatal"));
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
         }
 
         [Fact]
         public async Task LogInfoAsync()
         {
-            await Common.EvaluateAsync(@"log.info:foo", (node) =>
-            {
-                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:info\r\n            content:foo\r\n", node.ToHyperlambda());
-            });
+            ConnectionFactory.Arguments.Clear();
+            await Common.EvaluateAsync(@"log.info:foo");
+            Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
+            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal(2, ConnectionFactory.Arguments.Count);
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "info"));
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
         }
 
         [Fact]
         public async Task LogErrorAsync()
         {
-            await Common.EvaluateAsync(@"log.error:foo", (node) =>
-            {
-                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:error\r\n            content:foo\r\n", node.ToHyperlambda());
-            });
+            ConnectionFactory.Arguments.Clear();
+            await Common.EvaluateAsync(@"log.error:foo");
+            Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
+            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal(2, ConnectionFactory.Arguments.Count);
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "error"));
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
         }
 
         [Fact]
         public async Task LogDebugAsync()
         {
-            await Common.EvaluateAsync(@"log.debug:foo", (node) =>
-            {
-                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:debug\r\n            content:foo\r\n", node.ToHyperlambda());
-            });
+            ConnectionFactory.Arguments.Clear();
+            await Common.EvaluateAsync(@"log.debug:foo");
+            Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
+            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal(2, ConnectionFactory.Arguments.Count);
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "debug"));
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
         }
 
         [Fact]
         public async Task LogFatalAsync()
         {
-            await Common.EvaluateAsync(@"log.fatal:foo", (node) =>
-            {
-                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:fatal\r\n            content:foo\r\n", node.ToHyperlambda());
-            });
+            ConnectionFactory.Arguments.Clear();
+            await Common.EvaluateAsync(@"log.fatal:foo");
+            Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
+            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal(2, ConnectionFactory.Arguments.Count);
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "fatal"));
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
         }
 
         [Fact]
         public void LogInfoChildren()
         {
+            ConnectionFactory.Arguments.Clear();
             Common.Evaluate(@"log.info
    .:foo
    .:-
-   .:bar", (node) =>
-            {
-                Assert.Equal("\"\"\r\n   data.connect:magic\r\n      data.create\r\n         table:log_entries\r\n         values\r\n            type:info\r\n            content:foo-bar\r\n", node.ToHyperlambda());
-            });
+   .:bar");
+            Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
+            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal(2, ConnectionFactory.Arguments.Count);
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "info"));
+            Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo-bar"));
         }
     }
 }
