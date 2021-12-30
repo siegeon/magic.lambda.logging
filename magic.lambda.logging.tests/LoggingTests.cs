@@ -18,7 +18,7 @@ namespace magic.lambda.logging.tests
             ConnectionFactory.Arguments.Clear();
             Common.Evaluate(@"log.info:foo");
             Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
-            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal("set time_zone = '+00:00'; insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
             Assert.Equal(2, ConnectionFactory.Arguments.Count);
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "info"));
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
@@ -30,7 +30,7 @@ namespace magic.lambda.logging.tests
             ConnectionFactory.Arguments.Clear();
             Common.Evaluate(@"log.error:foo");
             Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
-            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal("set time_zone = '+00:00'; insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
             Assert.Equal(2, ConnectionFactory.Arguments.Count);
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "error"));
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
@@ -51,7 +51,7 @@ namespace magic.lambda.logging.tests
                 logger.Error("foo", err);
             }
             Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
-            Assert.Equal("insert into log_entries (type, content, exception) values (@arg1, @arg2, @arg3)", ConnectionFactory.CommandText);
+            Assert.Equal("set time_zone = '+00:00'; insert into log_entries (type, content, exception) values (@arg1, @arg2, @arg3)", ConnectionFactory.CommandText);
             Assert.Equal(3, ConnectionFactory.Arguments.Count);
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "error"));
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
@@ -64,7 +64,7 @@ namespace magic.lambda.logging.tests
             ConnectionFactory.Arguments.Clear();
             Common.Evaluate(@"log.debug:foo-bar");
             Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
-            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal("set time_zone = '+00:00'; insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
             Assert.Equal(2, ConnectionFactory.Arguments.Count);
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "debug"));
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo-bar"));
@@ -76,7 +76,7 @@ namespace magic.lambda.logging.tests
             ConnectionFactory.Arguments.Clear();
             Common.Evaluate(@"log.fatal:foo");
             Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
-            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal("set time_zone = '+00:00'; insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
             Assert.Equal(2, ConnectionFactory.Arguments.Count);
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "fatal"));
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
@@ -88,7 +88,7 @@ namespace magic.lambda.logging.tests
             ConnectionFactory.Arguments.Clear();
             await Common.EvaluateAsync(@"log.info:foo");
             Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
-            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal("set time_zone = '+00:00'; insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
             Assert.Equal(2, ConnectionFactory.Arguments.Count);
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "info"));
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
@@ -100,7 +100,7 @@ namespace magic.lambda.logging.tests
             ConnectionFactory.Arguments.Clear();
             await Common.EvaluateAsync(@"log.error:foo");
             Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
-            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal("set time_zone = '+00:00'; insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
             Assert.Equal(2, ConnectionFactory.Arguments.Count);
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "error"));
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
@@ -112,7 +112,7 @@ namespace magic.lambda.logging.tests
             ConnectionFactory.Arguments.Clear();
             await Common.EvaluateAsync(@"log.debug:foo");
             Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
-            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal("set time_zone = '+00:00'; insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
             Assert.Equal(2, ConnectionFactory.Arguments.Count);
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "debug"));
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
@@ -124,7 +124,7 @@ namespace magic.lambda.logging.tests
             ConnectionFactory.Arguments.Clear();
             await Common.EvaluateAsync(@"log.fatal:foo");
             Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
-            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal("set time_zone = '+00:00'; insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
             Assert.Equal(2, ConnectionFactory.Arguments.Count);
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "fatal"));
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo"));
@@ -139,7 +139,7 @@ namespace magic.lambda.logging.tests
    .:-
    .:bar");
             Assert.Equal("CONNECTION-STRING-magic", ConnectionFactory.ConnectionString);
-            Assert.Equal("insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
+            Assert.Equal("set time_zone = '+00:00'; insert into log_entries (type, content) values (@arg1, @arg2)", ConnectionFactory.CommandText);
             Assert.Equal(2, ConnectionFactory.Arguments.Count);
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg1" && x.Item2 == "info"));
             Assert.Single(ConnectionFactory.Arguments.Where(x => x.Item1 == "@arg2" && x.Item2 == "foo-bar"));

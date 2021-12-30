@@ -99,7 +99,7 @@ namespace magic.lambda.logging.helpers
                 connection.Open();
 
                 // Creating our insert commend.
-                using (var cmd = CreateCommand(connection, type, content, error))
+                using (var cmd = CreateCommand(connection, dbType, type, content, error))
                 {
                     cmd.ExecuteNonQuery();
                 }
@@ -122,7 +122,7 @@ namespace magic.lambda.logging.helpers
                 connection.Open();
 
                 // Creating our insert commend.
-                using (var cmd = CreateCommand(connection, type, content, error))
+                using (var cmd = CreateCommand(connection, dbType, type, content, error))
                 {
                     cmd.ExecuteNonQuery();
                 }
@@ -132,11 +132,18 @@ namespace magic.lambda.logging.helpers
         /*
          * Creates an IDbCommand that inserts into log database, and returns the command to caller.
          */
-        static IDbCommand CreateCommand(IDbConnection connection, string type, string content, Exception error)
+        static IDbCommand CreateCommand(
+            IDbConnection connection,
+            string dbType,
+            string type,
+            string content,
+            Exception error)
         {
             // Creating our SQL command.
             var command = connection.CreateCommand();
             var builder = new StringBuilder();
+            if (dbType == "mysql")
+                builder.Append("set time_zone = '+00:00'; ");
             builder.Append("insert into log_entries (type, content");
             if (error != null)
                 builder.Append(", exception");
