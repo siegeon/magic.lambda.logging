@@ -4,6 +4,7 @@
 
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Text;
 using System.Threading.Tasks;
 using magic.node;
@@ -34,25 +35,33 @@ namespace magic.lambda.logging.helpers
         /// <inheritdoc/>
         public void Debug(string value)
         {
-            InsertLogEntry("debug", value);
+            InsertLogEntryAsync("debug", value)
+                .GetAwaiter()
+                .GetResult();
         }
 
         /// <inheritdoc/>
         public void Error(string value, Exception error = null)
         {
-            InsertLogEntry("error", value, error);
+            InsertLogEntryAsync("error", value, error)
+                .GetAwaiter()
+                .GetResult();
         }
 
         /// <inheritdoc/>
         public void Fatal(string value, Exception error = null)
         {
-            InsertLogEntry("fatal", value, error);
+            InsertLogEntryAsync("fatal", value, error)
+                .GetAwaiter()
+                .GetResult();
         }
 
         /// <inheritdoc/>
         public void Info(string value)
         {
-            InsertLogEntry("info", value);
+            InsertLogEntryAsync("info", value)
+                .GetAwaiter()
+                .GetResult();
         }
 
         /// <inheritdoc/>
@@ -83,29 +92,6 @@ namespace magic.lambda.logging.helpers
 
         #region [ -- Private helper methods and properties -- ]
 
-        void InsertLogEntry(
-            string type,
-            string content,
-            Exception error = null)
-        {
-            // Retrieving IDbConnection to use.
-            var dbType = _magicConfiguration["magic:databases:default"];
-            var dbNode = new Node();
-            _signaler.Signal($".db-factory.connection.{dbType}", dbNode);
-            using (var connection = dbNode.Get<IDbConnection>())
-            {
-                // Opening database connection.
-                connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
-                connection.Open();
-
-                // Creating our insert commend.
-                using (var cmd = CreateCommand(connection, dbType, type, content, error))
-                {
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
-
         async Task InsertLogEntryAsync(
             string type,
             string content,
@@ -115,16 +101,16 @@ namespace magic.lambda.logging.helpers
             var dbType = _magicConfiguration["magic:databases:default"];
             var dbNode = new Node();
             await _signaler.SignalAsync($".db-factory.connection.{dbType}", dbNode);
-            using (var connection = dbNode.Get<IDbConnection>())
+            using (var connection = dbNode.Get<DbConnection>())
             {
                 // Opening database connection.
                 connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
-                connection.Open();
+                await connection.OpenAsync();
 
                 // Creating our insert commend.
                 using (var cmd = CreateCommand(connection, dbType, type, content, error))
                 {
-                    cmd.ExecuteNonQuery();
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
         }
@@ -132,8 +118,8 @@ namespace magic.lambda.logging.helpers
         /*
          * Creates an IDbCommand that inserts into log database, and returns the command to caller.
          */
-        static IDbCommand CreateCommand(
-            IDbConnection connection,
+        static DbCommand CreateCommand(
+            DbConnection connection,
             string dbType,
             string type,
             string content,
@@ -147,27 +133,27 @@ namespace magic.lambda.logging.helpers
             builder.Append("insert into log_entries (type, content");
             if (error != null)
                 builder.Append(", exception");
-            builder.Append(") values (@arg1, @arg2");
+            builder.Append(") values (@type, @content");
             if (error != null)
-                builder.Append(", @arg3");
+                builder.Append(", @exception");
             builder.Append(")");
             command.CommandText = builder.ToString();
 
             // Adding arguments to invocation.
             var typeArg = command.CreateParameter();
-            typeArg.ParameterName = "@arg1";
+            typeArg.ParameterName = "@type";
             typeArg.Value = type;
             command.Parameters.Add(typeArg);
 
             var contentArg = command.CreateParameter();
-            contentArg.ParameterName = "@arg2";
+            contentArg.ParameterName = "@content";
             contentArg.Value = content;
             command.Parameters.Add(contentArg);
 
             if (error != null)
             {
                 var exceptionArg = command.CreateParameter();
-                exceptionArg.ParameterName = "@arg3";
+                exceptionArg.ParameterName = "@exception";
                 exceptionArg.Value = error.StackTrace;
                 command.Parameters.Add(exceptionArg);
             }
