@@ -34,6 +34,7 @@ namespace magic.lambda.logging
         public void Signal(ISignaler signaler, Node input)
         {
             _logger.Debug(Utilities.GetLogContent(input, signaler));
+            input.Clear(); // House cleaning.
         }
 
         /// <summary>
@@ -44,6 +45,7 @@ namespace magic.lambda.logging
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             await _logger.DebugAsync(Utilities.GetLogContent(input, signaler));
+            input.Clear(); // House cleaning.
         }
     }
 }
