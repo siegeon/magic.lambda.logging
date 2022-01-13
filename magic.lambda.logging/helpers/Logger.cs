@@ -24,6 +24,7 @@ namespace magic.lambda.logging.helpers
         /// Constructs a new instance of the default ILogger implementation.
         /// </summary>
         /// <param name="signaler">ISignaler implementation.</param>
+        /// <param name="magicConfiguration">Configuration object.</param>
         public Logger(ISignaler signaler, IMagicConfiguration magicConfiguration)
         {
             _signaler = signaler;
@@ -99,18 +100,43 @@ namespace magic.lambda.logging.helpers
         {
             // Retrieving IDbConnection to use.
             var dbType = _magicConfiguration["magic:databases:default"];
-            var dbNode = new Node();
-            await _signaler.SignalAsync($".db-factory.connection.{dbType}", dbNode);
-            using (var connection = dbNode.Get<DbConnection>())
+            var level = _magicConfiguration["magic:logging:level"] ?? "debug";
+            var shouldLog = false;
+            switch (type)
             {
-                // Opening database connection.
-                connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
-                await connection.OpenAsync();
+                case "debug":
+                    shouldLog = level == "debug";
+                    break;
 
-                // Creating our insert commend.
-                using (var cmd = CreateCommand(connection, dbType, type, content, error))
+                case "info":
+                    shouldLog = level == "info" || level == "debug";
+                    break;
+
+                case "error":
+                    shouldLog = level == "error" || level == "info" || level == "debug";
+                    break;
+
+                case "fatal":
+                    shouldLog = level == "fatal" || level == "error" || level == "info" || level == "debug";
+                    break;
+            }
+
+            // Verifying we're supposed to log.
+            if (shouldLog)
+            {
+                var dbNode = new Node();
+                await _signaler.SignalAsync($".db-factory.connection.{dbType}", dbNode);
+                using (var connection = dbNode.Get<DbConnection>())
                 {
-                    await cmd.ExecuteNonQueryAsync();
+                    // Opening database connection.
+                    connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
+                    await connection.OpenAsync();
+
+                    // Creating our insert commend.
+                    using (var cmd = CreateCommand(connection, dbType, type, content, error))
+                    {
+                        await cmd.ExecuteNonQueryAsync();
+                    }
                 }
             }
         }
