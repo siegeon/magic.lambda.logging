@@ -48,8 +48,22 @@ namespace magic.lambda.logging.helpers
         /// Logs an error, optionally associated with an exception.
         /// </summary>
         /// <param name="value">Entry to log.</param>
+        /// <param name="stackTrace">Stack trace of exception.</param>
+        void Error(string value, string stackTrace);
+
+        /// <summary>
+        /// Logs an error, optionally associated with an exception.
+        /// </summary>
+        /// <param name="value">Entry to log.</param>
         /// <param name="error">Exception to log.</param>
         Task ErrorAsync(string value, Exception error = null);
+
+        /// <summary>
+        /// Logs an error, optionally associated with an exception.
+        /// </summary>
+        /// <param name="value">Entry to log.</param>
+        /// <param name="stackTrace">Exception to log.</param>
+        Task ErrorAsync(string value, string stackTrace);
 
         /// <summary>
         /// Logs a fatal error, optionally associated with an exception.

@@ -50,6 +50,14 @@ namespace magic.lambda.logging.helpers
         }
 
         /// <inheritdoc/>
+        public void Error(string value, string stackTrace)
+        {
+            InsertLogEntryAsync("error", value, null, stackTrace)
+                .GetAwaiter()
+                .GetResult();
+        }
+
+        /// <inheritdoc/>
         public void Fatal(string value, Exception error = null)
         {
             InsertLogEntryAsync("fatal", value, error)
@@ -78,6 +86,12 @@ namespace magic.lambda.logging.helpers
         }
 
         /// <inheritdoc/>
+        public Task ErrorAsync(string value, string stackTrace)
+        {
+            return InsertLogEntryAsync("error", value, null, stackTrace);
+        }
+
+        /// <inheritdoc/>
         public Task FatalAsync(string value, Exception error = null)
         {
             return InsertLogEntryAsync("fatal", value, error);
@@ -96,7 +110,8 @@ namespace magic.lambda.logging.helpers
         async Task InsertLogEntryAsync(
             string type,
             string content,
-            Exception error = null)
+            Exception error = null, 
+            string stackTrace = null)
         {
             // Retrieving IDbConnection to use.
             var dbType = _magicConfiguration["magic:databases:default"];
@@ -133,7 +148,7 @@ namespace magic.lambda.logging.helpers
                     await connection.OpenAsync();
 
                     // Creating our insert commend.
-                    using (var cmd = CreateCommand(connection, dbType, type, content, error))
+                    using (var cmd = CreateCommand(connection, dbType, type, content, error, stackTrace))
                     {
                         await cmd.ExecuteNonQueryAsync();
                     }
@@ -149,7 +164,8 @@ namespace magic.lambda.logging.helpers
             string dbType,
             string type,
             string content,
-            Exception error)
+            Exception error,
+            string stackTrace)
         {
             // Creating our SQL command.
             var command = connection.CreateCommand();
@@ -157,10 +173,12 @@ namespace magic.lambda.logging.helpers
             if (dbType == "mysql")
                 builder.Append("set time_zone = '+00:00'; ");
             builder.Append("insert into log_entries (type, content");
-            if (error != null)
+            if (error != null || stackTrace != null)
                 builder.Append(", exception");
             builder.Append(") values (@type, @content");
             if (error != null)
+                builder.Append(", @exception");
+            else if (stackTrace != null)
                 builder.Append(", @exception");
             builder.Append(")");
             command.CommandText = builder.ToString();
@@ -176,11 +194,11 @@ namespace magic.lambda.logging.helpers
             contentArg.Value = content;
             command.Parameters.Add(contentArg);
 
-            if (error != null)
+            if (error != null || stackTrace != null)
             {
                 var exceptionArg = command.CreateParameter();
                 exceptionArg.ParameterName = "@exception";
-                exceptionArg.Value = error.StackTrace;
+                exceptionArg.Value = stackTrace ?? error.StackTrace;
                 command.Parameters.Add(exceptionArg);
             }
 
