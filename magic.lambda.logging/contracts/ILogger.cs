@@ -5,7 +5,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace magic.lambda.logging.helpers
+namespace magic.lambda.logging.contracts
 {
     /// <summary>
     /// Implementation interface to allow usage of any actual logging

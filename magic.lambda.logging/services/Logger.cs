@@ -3,7 +3,6 @@
  */
 
 using System;
-using System.Data;
 using System.Data.Common;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,8 +10,9 @@ using magic.node;
 using magic.node.contracts;
 using magic.node.extensions;
 using magic.signals.contracts;
+using magic.lambda.logging.contracts;
 
-namespace magic.lambda.logging.helpers
+namespace magic.lambda.logging.services
 {
     /// <inheritdoc/>
     public class Logger : ILogger
