@@ -2,29 +2,30 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
+using System.Linq;
 using System.Threading.Tasks;
 using magic.node;
+using magic.node.extensions;
 using magic.signals.contracts;
-using magic.lambda.logging.helpers;
 using magic.lambda.logging.contracts;
 
-namespace magic.lambda.logging
+namespace magic.lambda.logging.slots
 {
     /// <summary>
-    /// [log.info] slot for logging informational pieces of log entries.
+    /// [log.query] slot for querying log items.
     /// </summary>
-    [Slot(Name = "log.info")]
-    public class LogInfo : ISlotAsync, ISlot
+    [Slot(Name = "log.get")]
+    public class Get : ISlotAsync, ISlot
     {
-        readonly ILogger _logger;
+        readonly ILogQuery _query;
 
         /// <summary>
         /// Creates an instance of your type.
         /// </summary>
-        /// <param name="logger">Actual implementation.</param>
-        public LogInfo(ILogger logger)
+        /// <param name="query">Actual implementation.</param>
+        public Get(ILogQuery query)
         {
-            _logger = logger;
+            _query = query;
         }
 
         /// <summary>
@@ -34,8 +35,7 @@ namespace magic.lambda.logging
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            _logger.Info(Utilities.GetLogContent(input, signaler));
-            input.Clear(); // House cleaning.
+            SignalAsync(signaler, input).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -45,8 +45,15 @@ namespace magic.lambda.logging
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            await _logger.InfoAsync(Utilities.GetLogContent(input, signaler));
-            input.Clear(); // House cleaning.
+            var id = input.GetEx<object>();
+            input.Clear();
+            input.Value = null;
+            var item = await _query.Get(id);
+            input.Add(new Node("id", item.Id));
+            input.Add(new Node("type", item.Type));
+            input.Add(new Node("created", item.Created));
+            input.Add(new Node("content", item.Content));
+            input.Add(new Node("exception", item.Exception));
         }
     }
 }

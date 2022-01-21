@@ -6,6 +6,7 @@ using System;
 using System.Data.Common;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using magic.node;
 using magic.node.contracts;
 using magic.node.extensions;
@@ -15,7 +16,7 @@ using magic.lambda.logging.contracts;
 namespace magic.lambda.logging.services
 {
     /// <inheritdoc/>
-    public class Logger : ILogger
+    public class Logger : ILogger, ILogQuery
     {
         readonly ISignaler _signaler;
         readonly IMagicConfiguration _magicConfiguration;
@@ -101,6 +102,136 @@ namespace magic.lambda.logging.services
         public Task InfoAsync(string value)
         {
             return InsertLogEntryAsync("info", value);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<LogItem>> QueryAsync(int max, object fromId, string query = null)
+        {
+            if (!string.IsNullOrEmpty(query) && (query.Contains("%") || query.Contains("?")))
+                throw new HyperlambdaException($"You cannot filter log items with wild cards");
+
+            var dbNode = new Node();
+            var dbType = _magicConfiguration["magic:databases:default"];
+            await _signaler.SignalAsync($".db-factory.connection.{dbType}", dbNode);
+            using (var connection = dbNode.Get<DbConnection>())
+            {
+                connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
+                await connection.OpenAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    var builder = new StringBuilder();
+                    builder.Append("select id, created, type, content, exception from log_entries");
+                    if (fromId != null || !string.IsNullOrEmpty(query))
+                    {
+                        builder.Append(" where ");
+                        if (fromId != null)
+                        {
+                            builder.Append($"id < {Convert.ToInt64(fromId)}");
+                            if (!string.IsNullOrEmpty(query))
+                            {
+                                builder.Append(" and content like @filter");
+                                var filter = command.CreateParameter();
+                                filter.ParameterName = "@filter";
+                                filter.Value = query + "%";
+                                command.Parameters.Add(filter);
+                            }
+                        }
+                        else
+                        {
+                            builder.Append(" content like @filter");
+                            var filter = command.CreateParameter();
+                            filter.ParameterName = "@filter";
+                            filter.Value = query + "%";
+                            command.Parameters.Add(filter);
+                        }
+                    }
+                    builder.Append($" order by id desc limit {max}");
+                    command.CommandText = builder.ToString();
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        var result = new List<LogItem>();
+                        while (await reader.ReadAsync())
+                        {
+                            var dt = (DateTime)reader["created"];
+                            result.Add(new LogItem
+                            {
+                                Id = reader["id"],
+                                Created = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, DateTimeKind.Utc),
+                                Type = reader["type"] as string,
+                                Content = reader["content"] as string,
+                                Exception = reader["exception"] as string,
+                            });
+                        }
+                        return result;
+                    }
+                }
+            }
+        }
+
+        public async Task<LogItem> Get(object id)
+        {
+            var dbNode = new Node();
+            var dbType = _magicConfiguration["magic:databases:default"];
+            await _signaler.SignalAsync($".db-factory.connection.{dbType}", dbNode);
+            using (var connection = dbNode.Get<DbConnection>())
+            {
+                connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
+                await connection.OpenAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    var builder = new StringBuilder();
+                    builder.Append("select id, created, type, content, exception from log_entries where id = @id");
+                    var filter = command.CreateParameter();
+                    filter.ParameterName = "@id";
+                    filter.Value = id;
+                    command.Parameters.Add(filter);
+                    command.CommandText = builder.ToString();
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        var result = new List<LogItem>();
+                        if (await reader.ReadAsync())
+                        {
+                            var dt = (DateTime)reader["created"];
+                            return new LogItem
+                            {
+                                Id = reader["id"],
+                                Created = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, DateTimeKind.Utc),
+                                Type = reader["type"] as string,
+                                Content = reader["content"] as string,
+                                Exception = reader["exception"] as string,
+                            };
+                        }
+                        throw new HyperlambdaException($"Couldn't find log item with ID '{id}'");
+                    }
+                }
+            }
+        }
+
+        public async Task<long> CountAsync(string query = null)
+        {
+            var dbNode = new Node();
+            var dbType = _magicConfiguration["magic:databases:default"];
+            await _signaler.SignalAsync($".db-factory.connection.{dbType}", dbNode);
+            using (var connection = dbNode.Get<DbConnection>())
+            {
+                connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
+                await connection.OpenAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    var builder = new StringBuilder();
+                    builder.Append("select count(id) from log_entries");
+                    if (!string.IsNullOrEmpty(query))
+                    {
+                        builder.Append(" where content like @filter");
+                        var filter = command.CreateParameter();
+                        filter.ParameterName = "@filter";
+                        filter.Value = query + "%";
+                        command.Parameters.Add(filter);
+                    }
+                    command.CommandText = builder.ToString();
+                    return Convert.ToInt64(await command.ExecuteScalarAsync());
+                }
+            }
         }
 
         #endregion

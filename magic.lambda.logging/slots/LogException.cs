@@ -2,19 +2,21 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
+using System.Linq;
 using System.Threading.Tasks;
 using magic.node;
+using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.logging.helpers;
 using magic.lambda.logging.contracts;
 
-namespace magic.lambda.logging
+namespace magic.lambda.logging.slots
 {
     /// <summary>
-    /// [log.error] slot for logging error log entries.
+    /// [log.exception] slot for logging exception entries.
     /// </summary>
-    [Slot(Name = "log.error")]
-    public class LogError : ISlotAsync, ISlot
+    [Slot(Name = "log.exception")]
+    public class LogException : ISlotAsync, ISlot
     {
         readonly ILogger _logger;
 
@@ -22,7 +24,7 @@ namespace magic.lambda.logging
         /// Creates an instance of your type.
         /// </summary>
         /// <param name="logger">Actual implementation.</param>
-        public LogError(ILogger logger)
+        public LogException(ILogger logger)
         {
             _logger = logger;
         }
@@ -34,7 +36,10 @@ namespace magic.lambda.logging
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            _logger.Error(Utilities.GetLogContent(input, signaler));
+            var exceptionNode = input.Children.FirstOrDefault(x => x.Name == "exception");
+            var stack = exceptionNode?.GetEx<string>();
+            exceptionNode?.UnTie();
+            _logger.Error(Utilities.GetLogContent(input, signaler), stack);
             input.Clear(); // House cleaning.
         }
 
@@ -45,7 +50,10 @@ namespace magic.lambda.logging
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            await _logger.ErrorAsync(Utilities.GetLogContent(input, signaler));
+            var exceptionNode = input.Children.FirstOrDefault(x => x.Name == "exception");
+            var stack = exceptionNode?.GetEx<string>();
+            exceptionNode?.UnTie();
+            await _logger.ErrorAsync(Utilities.GetLogContent(input, signaler), stack);
             input.Clear(); // House cleaning.
         }
     }

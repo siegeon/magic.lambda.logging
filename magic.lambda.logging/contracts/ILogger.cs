@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 namespace magic.lambda.logging.contracts
 {
     /// <summary>
-    /// Implementation interface to allow usage of any actual logging
-    /// implementation. Notice, must be provided by user of library.
+    /// Interface to allow usage of any actual logging implementation.
     /// </summary>
     public interface ILogger
     {

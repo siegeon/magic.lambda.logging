@@ -8,13 +8,13 @@ using magic.signals.contracts;
 using magic.lambda.logging.helpers;
 using magic.lambda.logging.contracts;
 
-namespace magic.lambda.logging
+namespace magic.lambda.logging.slots
 {
     /// <summary>
-    /// [log.error] slot for logging error log entries.
+    /// [log.debug] slot for logging debug log entries.
     /// </summary>
-    [Slot(Name = "log.fatal")]
-    public class LogFatal : ISlotAsync, ISlot
+    [Slot(Name = "log.debug")]
+    public class LogDebug : ISlotAsync, ISlot
     {
         readonly ILogger _logger;
 
@@ -22,7 +22,7 @@ namespace magic.lambda.logging
         /// Creates an instance of your type.
         /// </summary>
         /// <param name="logger">Actual implementation.</param>
-        public LogFatal(ILogger logger)
+        public LogDebug(ILogger logger)
         {
             _logger = logger;
         }
@@ -34,7 +34,7 @@ namespace magic.lambda.logging
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            _logger.Fatal(Utilities.GetLogContent(input, signaler));
+            _logger.Debug(Utilities.GetLogContent(input, signaler));
             input.Clear(); // House cleaning.
         }
 
@@ -45,7 +45,7 @@ namespace magic.lambda.logging
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            await _logger.FatalAsync(Utilities.GetLogContent(input, signaler));
+            await _logger.DebugAsync(Utilities.GetLogContent(input, signaler));
             input.Clear(); // House cleaning.
         }
     }
