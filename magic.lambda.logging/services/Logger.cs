@@ -155,7 +155,7 @@ namespace magic.lambda.logging.services
                             var dt = (DateTime)reader["created"];
                             result.Add(new LogItem
                             {
-                                Id = reader["id"],
+                                Id = Convert.ToString(reader["id"]),
                                 Created = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, DateTimeKind.Utc),
                                 Type = reader["type"] as string,
                                 Content = reader["content"] as string,
@@ -194,7 +194,7 @@ namespace magic.lambda.logging.services
                             var dt = (DateTime)reader["created"];
                             return new LogItem
                             {
-                                Id = reader["id"],
+                                Id = Convert.ToString(reader["id"]),
                                 Created = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, DateTimeKind.Utc),
                                 Type = reader["type"] as string,
                                 Content = reader["content"] as string,

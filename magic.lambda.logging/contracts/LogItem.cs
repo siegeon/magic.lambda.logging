@@ -15,7 +15,7 @@ namespace magic.lambda.logging.contracts
         /// Id of log item.
         /// </summary>
         /// <value>Id of log item.</value>
-        public object Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// When item was created.
