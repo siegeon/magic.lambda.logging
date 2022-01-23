@@ -10,7 +10,7 @@
     <Description>Logging helper slots for Magic, allowing you to inject your own logging implementation, giving you the ability to create log entries from Hyperlambda. To use package go to https://polterguy.github.io</Description>
     <PackageProjectUrl>https://github.com/polterguy/magic.lambda.logging</PackageProjectUrl>
     <PackOnBuild>true</PackOnBuild>
-    <PackageVersion>10.0.18</PackageVersion>
+    <PackageVersion>10.0.19</PackageVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/polterguy/magic.lambda.logging.git</RepositoryUrl>
@@ -42,8 +42,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="magic.node.extensions" Version="10.0.18" />
-    <PackageReference Include="magic.signals.contracts" Version="10.0.18" />
+    <PackageReference Include="magic.node.extensions" Version="10.0.19" />
+    <PackageReference Include="magic.signals.contracts" Version="10.0.19" />
   </ItemGroup>
 
 </Project>
