@@ -105,11 +105,8 @@ namespace magic.lambda.logging.services
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<LogItem>> QueryAsync(int max, object fromId, string query = null)
+        public async Task<IEnumerable<LogItem>> QueryAsync(int max, object fromId)
         {
-            if (!string.IsNullOrEmpty(query) && (query.Contains("%") || query.Contains("?")))
-                throw new HyperlambdaException($"You cannot filter log items with wild cards");
-
             var dbNode = new Node();
             var dbType = _magicConfiguration["magic:databases:default"];
             await _signaler.SignalAsync($".db-factory.connection.{dbType}", dbNode);
@@ -121,29 +118,10 @@ namespace magic.lambda.logging.services
                 {
                     var builder = new StringBuilder();
                     builder.Append("select id, created, type, content, exception from log_entries");
-                    if (fromId != null || !string.IsNullOrEmpty(query))
+                    if (fromId != null)
                     {
                         builder.Append(" where ");
-                        if (fromId != null)
-                        {
-                            builder.Append($"id < {Convert.ToInt64(fromId)}");
-                            if (!string.IsNullOrEmpty(query))
-                            {
-                                builder.Append(" and content like @filter");
-                                var filter = command.CreateParameter();
-                                filter.ParameterName = "@filter";
-                                filter.Value = query + "%";
-                                command.Parameters.Add(filter);
-                            }
-                        }
-                        else
-                        {
-                            builder.Append(" content like @filter");
-                            var filter = command.CreateParameter();
-                            filter.ParameterName = "@filter";
-                            filter.Value = query + "%";
-                            command.Parameters.Add(filter);
-                        }
+                        builder.Append($"id < {Convert.ToInt64(fromId)}");
                     }
                     builder.Append($" order by id desc limit {max}");
                     command.CommandText = builder.ToString();
@@ -168,6 +146,27 @@ namespace magic.lambda.logging.services
             }
         }
 
+        /// <inheritdoc/>
+        public async Task<long> CountAsync()
+        {
+            var dbNode = new Node();
+            var dbType = _magicConfiguration["magic:databases:default"];
+            await _signaler.SignalAsync($".db-factory.connection.{dbType}", dbNode);
+            using (var connection = dbNode.Get<DbConnection>())
+            {
+                connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
+                await connection.OpenAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    var builder = new StringBuilder();
+                    builder.Append("select count(id) from log_entries");
+                    command.CommandText = builder.ToString();
+                    return Convert.ToInt64(await command.ExecuteScalarAsync());
+                }
+            }
+        }
+
+        /// <inheritdoc/>
         public async Task<LogItem> Get(object id)
         {
             var dbNode = new Node();
@@ -203,33 +202,6 @@ namespace magic.lambda.logging.services
                         }
                         throw new HyperlambdaException($"Couldn't find log item with ID '{id}'");
                     }
-                }
-            }
-        }
-
-        public async Task<long> CountAsync(string query = null)
-        {
-            var dbNode = new Node();
-            var dbType = _magicConfiguration["magic:databases:default"];
-            await _signaler.SignalAsync($".db-factory.connection.{dbType}", dbNode);
-            using (var connection = dbNode.Get<DbConnection>())
-            {
-                connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
-                await connection.OpenAsync();
-                using (var command = connection.CreateCommand())
-                {
-                    var builder = new StringBuilder();
-                    builder.Append("select count(id) from log_entries");
-                    if (!string.IsNullOrEmpty(query))
-                    {
-                        builder.Append(" where content like @filter");
-                        var filter = command.CreateParameter();
-                        filter.ParameterName = "@filter";
-                        filter.Value = query + "%";
-                        command.Parameters.Add(filter);
-                    }
-                    command.CommandText = builder.ToString();
-                    return Convert.ToInt64(await command.ExecuteScalarAsync());
                 }
             }
         }

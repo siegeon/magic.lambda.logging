@@ -45,9 +45,8 @@ namespace magic.lambda.logging.slots
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            var query = input.GetEx<string>();
             input.Clear();
-            input.Value = await _query.CountAsync(query);
+            input.Value = await _query.CountAsync();
         }
     }
 }
