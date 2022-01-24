@@ -2,6 +2,7 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
+using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -31,6 +32,12 @@ namespace magic.lambda.logging.contracts
         /// </summary>
         /// <returns>Type and count.</returns>
         Task<IEnumerable<(string Type, long Count)>> Types();
+
+        /// <summary>
+        /// Returns log items matching the specified filtering condition grouped by dates for the last two weeks.
+        /// </summary>
+        /// <returns>Type and count.</returns>
+        Task<IEnumerable<(string When, long Count)>> Timeshift(string content);
 
         /// <summary>
         /// Returns the log item with the specified ID.
