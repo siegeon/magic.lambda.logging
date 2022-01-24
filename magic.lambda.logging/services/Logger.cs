@@ -195,6 +195,57 @@ namespace magic.lambda.logging.services
         }
 
         /// <inheritdoc/>
+        public async Task<IEnumerable<(string When, long Count)>> Timeshift(string content)
+        {
+            var dbNode = new Node();
+            var dbType = _magicConfiguration["magic:databases:default"];
+            await _signaler.SignalAsync($".db-factory.connection.{dbType}", dbNode);
+            using (var connection = dbNode.Get<DbConnection>())
+            {
+                connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
+                await connection.OpenAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    var date = "";
+                    var tail = "";
+                    switch (dbType)
+                    {
+                        case "mysql":
+                            date = "date_format(created, '%Y-%m-%d')";
+                            tail = " limit 14";
+                            break;
+
+                        case "mssql":
+                            date = "convert(char(10), created, 126)";
+                            tail = " offset 0 rows fetch first 14 rows only";
+                            break;
+
+                        case "pgsql":
+                            date = "to_char(created, 'YYYY-MM-dd')";
+                            tail = " limit 14";
+                            break;
+                    }
+                    var contentArg = command.CreateParameter();
+                    contentArg.ParameterName = "@content";
+                    contentArg.Value = content;
+                    command.Parameters.Add(contentArg);
+                    command.CommandText = $"select {date} as date, count(*) as count from log_entries where content = @content group by {date} order by {date} desc{tail}";
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        var result = new List<(string When, long Count)>();
+                        while (await reader.ReadAsync())
+                        {
+                            var when = reader["date"] as string;
+                            var count = Convert.ToInt64(reader["count"]);
+                            result.Add((when, count));
+                        }
+                        return result;
+                    }
+                }
+            }
+        }
+
+        /// <inheritdoc/>
         public async Task<LogItem> Get(object id)
         {
             var dbNode = new Node();
