@@ -4,7 +4,6 @@
 
 using System.Threading.Tasks;
 using magic.node;
-using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.logging.contracts;
 
@@ -13,8 +12,8 @@ namespace magic.lambda.logging.slots
     /// <summary>
     /// [log.query] slot for querying log items.
     /// </summary>
-    [Slot(Name = "log.get")]
-    public class Get : ISlotAsync, ISlot
+    [Slot(Name = "log.types")]
+    public class CountTypes : ISlotAsync, ISlot
     {
         readonly ILogQuery _query;
 
@@ -22,7 +21,7 @@ namespace magic.lambda.logging.slots
         /// Creates an instance of your type.
         /// </summary>
         /// <param name="query">Actual implementation.</param>
-        public Get(ILogQuery query)
+        public CountTypes(ILogQuery query)
         {
             _query = query;
         }
@@ -44,15 +43,11 @@ namespace magic.lambda.logging.slots
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            var id = input.GetEx<object>();
-            input.Clear();
-            input.Value = null;
-            var item = await _query.Get(id);
-            input.Add(new Node("id", item.Id));
-            input.Add(new Node("type", item.Type));
-            input.Add(new Node("created", item.Created));
-            input.Add(new Node("content", item.Content));
-            input.Add(new Node("exception", item.Exception));
+            var types = await _query.Types();
+            foreach (var idx in types)
+            {
+                input.Add(new Node(idx.Type, idx.Count));
+            }
         }
     }
 }

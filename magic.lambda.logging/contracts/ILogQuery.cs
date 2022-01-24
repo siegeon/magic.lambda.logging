@@ -27,6 +27,12 @@ namespace magic.lambda.logging.contracts
         Task<long> CountAsync();
 
         /// <summary>
+        /// Returns number of log items according to type.
+        /// </summary>
+        /// <returns>Type and count.</returns>
+        Task<IEnumerable<(string Type, long Count)>> Types();
+
+        /// <summary>
         /// Returns the log item with the specified ID.
         /// </summary>
         /// <param name="id">ID of item to return</param>
