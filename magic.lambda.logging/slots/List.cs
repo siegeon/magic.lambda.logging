@@ -12,10 +12,10 @@ using magic.lambda.logging.contracts;
 namespace magic.lambda.logging.slots
 {
     /// <summary>
-    /// [log.query] slot for querying log items.
+    /// [log.list] slot for listing log items sequentially according to most recent items first.
     /// </summary>
-    [Slot(Name = "log.query")]
-    public class Query : ISlotAsync, ISlot
+    [Slot(Name = "log.list")]
+    public class List : ISlotAsync, ISlot
     {
         readonly ILogQuery _query;
 
@@ -23,7 +23,7 @@ namespace magic.lambda.logging.slots
         /// Creates an instance of your type.
         /// </summary>
         /// <param name="query">Actual implementation.</param>
-        public Query(ILogQuery query)
+        public List(ILogQuery query)
         {
             _query = query;
         }

@@ -10,7 +10,7 @@ using magic.lambda.logging.contracts;
 namespace magic.lambda.logging.slots
 {
     /// <summary>
-    /// [log.query] slot for querying log items.
+    /// [log.types] slot for counting log items and grouping by type of item.
     /// </summary>
     [Slot(Name = "log.types")]
     public class CountTypes : ISlotAsync, ISlot

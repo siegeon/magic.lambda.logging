@@ -11,7 +11,7 @@ using magic.lambda.logging.contracts;
 namespace magic.lambda.logging.slots
 {
     /// <summary>
-    /// [log.query] slot for querying log items.
+    /// [log.get] slot for retrieving a single log item given a specified ID.
     /// </summary>
     [Slot(Name = "log.get")]
     public class Get : ISlotAsync, ISlot
@@ -44,7 +44,7 @@ namespace magic.lambda.logging.slots
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            var id = input.GetEx<object>();
+            var id = input.GetEx<object>() ?? throw new HyperlambdaException("No id specified to [log.get]");
             input.Clear();
             input.Value = null;
             var item = await _query.Get(id);
