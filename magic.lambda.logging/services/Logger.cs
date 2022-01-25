@@ -109,7 +109,7 @@ namespace magic.lambda.logging.services
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<LogItem>> QueryAsync(int max, object fromId)
+        public async Task<IEnumerable<LogItem>> QueryAsync(int max, object fromId, string content = null)
         {
             var dbNode = new Node();
             var dbType = _magicConfiguration["magic:databases:default"];
@@ -126,6 +126,18 @@ namespace magic.lambda.logging.services
                     {
                         builder.Append(" where ");
                         builder.Append($"id < {Convert.ToInt64(fromId)}");
+                    }
+                    if (!string.IsNullOrEmpty(content))
+                    {
+                        if (fromId == null)
+                            builder.Append(" where ");
+                        else
+                            builder.Append(" and ");
+                        builder.Append("content = @content");
+                        var contentArg = command.CreateParameter();
+                        contentArg.ParameterName = "@content";
+                        contentArg.Value = content;
+                        command.Parameters.Add(contentArg);
                     }
                     builder.Append($" order by id desc limit {max}");
                     command.CommandText = builder.ToString();
@@ -154,7 +166,7 @@ namespace magic.lambda.logging.services
         }
 
         /// <inheritdoc/>
-        public async Task<long> CountAsync()
+        public async Task<long> CountAsync(string content = null)
         {
             var dbNode = new Node();
             var dbType = _magicConfiguration["magic:databases:default"];
@@ -167,6 +179,14 @@ namespace magic.lambda.logging.services
                 {
                     var builder = new StringBuilder();
                     builder.Append("select count(id) from log_entries");
+                    if (!string.IsNullOrEmpty(content))
+                    {
+                        builder.Append(" where content = @content");
+                        var contentArg = command.CreateParameter();
+                        contentArg.ParameterName = "@content";
+                        contentArg.Value = content;
+                        command.Parameters.Add(contentArg);
+                    }
                     command.CommandText = builder.ToString();
                     return Convert.ToInt64(await command.ExecuteScalarAsync());
                 }

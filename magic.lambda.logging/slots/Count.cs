@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 using magic.node;
 using magic.signals.contracts;
 using magic.lambda.logging.contracts;
+using magic.node.extensions;
 
 namespace magic.lambda.logging.slots
 {
     /// <summary>
-    /// [log.count] slot for counting total number of log items.
+    /// [log.count] slot for counting total number of log items, optionally matching specified content type.
     /// </summary>
     [Slot(Name = "log.count")]
     public class Count : ISlotAsync, ISlot
@@ -44,7 +45,7 @@ namespace magic.lambda.logging.slots
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             input.Clear();
-            input.Value = await _query.CountAsync();
+            input.Value = await _query.CountAsync(input.GetEx<string>());
         }
     }
 }

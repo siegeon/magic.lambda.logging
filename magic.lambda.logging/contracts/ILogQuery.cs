@@ -17,14 +17,16 @@ namespace magic.lambda.logging.contracts
         /// </summary>
         /// <param name="max">Maximum number of items to return.</param>
         /// <param name="fromId">Offset of item where to start fetching items.</param>
+        /// <param name="content">Optional value content must match to be returned.</param>
         /// <returns>Log items matching specified filter conditions.</returns>
-        Task<IEnumerable<LogItem>> QueryAsync(int max, object fromId);
+        Task<IEnumerable<LogItem>> QueryAsync(int max, object fromId, string content = null);
 
         /// <summary>
         /// Returns total number of log items.
         /// </summary>
+        /// <param name="content">Optional value content must match to be counted.</param>
         /// <returns>Number of items matching criteria.</returns>
-        Task<long> CountAsync();
+        Task<long> CountAsync(string content = null);
 
         /// <summary>
         /// Returns number of log items according to type.

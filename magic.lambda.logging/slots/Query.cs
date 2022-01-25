@@ -12,10 +12,11 @@ using magic.lambda.logging.contracts;
 namespace magic.lambda.logging.slots
 {
     /// <summary>
-    /// [log.list] slot for listing log items sequentially according to most recent items first.
+    /// [log.query] slot for listing log items sequentially according to most recent items first,
+    /// optionally matching specified content type.
     /// </summary>
-    [Slot(Name = "log.list")]
-    public class List : ISlotAsync, ISlot
+    [Slot(Name = "log.query")]
+    public class Query : ISlotAsync, ISlot
     {
         readonly ILogQuery _query;
 
@@ -23,7 +24,7 @@ namespace magic.lambda.logging.slots
         /// Creates an instance of your type.
         /// </summary>
         /// <param name="query">Actual implementation.</param>
-        public List(ILogQuery query)
+        public Query(ILogQuery query)
         {
             _query = query;
         }
@@ -48,7 +49,7 @@ namespace magic.lambda.logging.slots
             var max = input.Children.FirstOrDefault(x => x.Name == "max")?.GetEx<int>() ?? 10;
             var from = input.Children.FirstOrDefault(x => x.Name == "from")?.GetEx<object>();
             input.Clear();
-            foreach (var idx in await _query.QueryAsync(max, from))
+            foreach (var idx in await _query.QueryAsync(max, from, input.GetEx<string>()))
             {
                 var tmp = new Node(".");
                 tmp.Add(new Node("id", idx.Id));
@@ -69,6 +70,7 @@ namespace magic.lambda.logging.slots
                 // Returning node to caller.
                 input.Add(tmp);
             }
+            input.Value = null;
         }
     }
 }
