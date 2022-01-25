@@ -16,7 +16,7 @@ namespace magic.lambda.logging.helpers
         public static (string Content, Dictionary<string, string> Meta) GetLogContent(Node node, ISignaler signaler)
         {
             if (node.Value != null)
-                return (node.GetEx<string>(), node.Children.Where(x => x.Name != "exception").ToDictionary(x => x.Name, x => x.GetEx<string>()));
+                return (node.GetEx<string>(), node.Children.ToDictionary(x => x.Name, x => x.GetEx<string>()));
 
             signaler.Signal("eval", node);
             var builder = new StringBuilder();
