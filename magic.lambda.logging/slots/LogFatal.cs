@@ -46,11 +46,15 @@ namespace magic.lambda.logging.slots
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
+            var errorNode = input.Children.FirstOrDefault(x => x.Name == "exception");
+            var error = errorNode?.GetEx<string>();
+            errorNode?.UnTie();
+
             var args = Utilities.GetLogContent(input, signaler);
             await _logger.FatalAsync(
                 args.Content,
                 args.Meta,
-                input.Children.FirstOrDefault(x => x.Name == "exception")?.GetEx<string>());
+                error);
             input.Clear();
             input.Value = null;
         }

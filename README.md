@@ -30,6 +30,28 @@ log.info
    get-value:x:@.a
 ```
 
+If you provide a value for your log invocation, and children nodes will be assumed to be _"meta information"_ associated
+with the invocation, allowing you to log data such as follows.
+
+```
+log.info:Some log entry
+   username:foo
+   ip:123.123.123.123
+```
+
+The above will log _"some log entry"_ for you, and associate **[username]** and **[ip]** with your log entry as meta data.
+This allows you to use the same log entry for each similar invocation type, and parametrise your log entry with meta information,
+giving you aggregate capabilities on log entries having the same content, while still preserving meta information unique
+to each log entry. Notice, if you don't provide a value to your log invocation, no meta data will be associated with your
+log entry, but all arguments will rather be concatenated as a single string and end up in the _"content"_ parts of
+your log entry.
+
+## Exception logging
+
+The **[log.error]** and **[log.fatal]** slots give you the option of logging an exception stack trace, by parametrising
+your invocation with an **[exception]** argument, which will _not_ be assumed to be meta information, but rather end up
+in the exception column as you log the item. All other parameters will still be evaluated or used as meta information.
+
 ## Project website
 
 The source code for this repository can be found at [github.com/polterguy/magic.lambda.logging](https://github.com/polterguy/magic.lambda.logging), and you can provide feedback, provide bug reports, etc at the same place.
