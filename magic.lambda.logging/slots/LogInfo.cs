@@ -34,8 +34,7 @@ namespace magic.lambda.logging.slots
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            _logger.Info(Utilities.GetLogContent(input, signaler));
-            input.Clear(); // House cleaning.
+            SignalAsync(signaler, input).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -45,8 +44,10 @@ namespace magic.lambda.logging.slots
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            await _logger.InfoAsync(Utilities.GetLogContent(input, signaler));
-            input.Clear(); // House cleaning.
+            var args = Utilities.GetLogContent(input, signaler);
+            await _logger.InfoAsync(args.Content, args.Meta);
+            input.Clear();
+            input.Value = null;
         }
     }
 }

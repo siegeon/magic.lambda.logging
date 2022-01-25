@@ -3,8 +3,9 @@
  */
 
 using System;
-using System.Data.Common;
+using System.Linq;
 using System.Text;
+using System.Data.Common;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using magic.node;
@@ -35,73 +36,75 @@ namespace magic.lambda.logging.services
         #region [ -- Interface implementations -- ]
 
         /// <inheritdoc/>
-        public void Debug(string value)
+        public Task DebugAsync(string content)
         {
-            InsertLogEntryAsync("debug", value)
-                .GetAwaiter()
-                .GetResult();
+            return InsertLogEntryAsync(_signaler, "debug", content, null, null);
         }
 
         /// <inheritdoc/>
-        public void Error(string value, Exception error = null)
+        public Task DebugAsync(string content, Dictionary<string, string> meta)
         {
-            InsertLogEntryAsync("error", value, error)
-                .GetAwaiter()
-                .GetResult();
+            return InsertLogEntryAsync(_signaler, "debug", content, meta, null);
         }
 
         /// <inheritdoc/>
-        public void Error(string value, string stackTrace)
+        public Task InfoAsync(string content)
         {
-            InsertLogEntryAsync("error", value, null, stackTrace)
-                .GetAwaiter()
-                .GetResult();
+            return InsertLogEntryAsync(_signaler, "info", content, null, null);
         }
 
         /// <inheritdoc/>
-        public void Fatal(string value, Exception error = null)
+        public Task InfoAsync(string content, Dictionary<string, string> meta)
         {
-            InsertLogEntryAsync("fatal", value, error)
-                .GetAwaiter()
-                .GetResult();
+            return InsertLogEntryAsync(_signaler, "info", content, meta, null);
         }
 
         /// <inheritdoc/>
-        public void Info(string value)
+        public Task ErrorAsync(string content)
         {
-            InsertLogEntryAsync("info", value)
-                .GetAwaiter()
-                .GetResult();
+            return InsertLogEntryAsync(_signaler, "error", content, null, null);
         }
 
         /// <inheritdoc/>
-        public Task DebugAsync(string value)
+        public Task ErrorAsync(string content, Dictionary<string, string> meta)
         {
-            return InsertLogEntryAsync("debug", value);
+            return InsertLogEntryAsync(_signaler, "error", content, meta, null);
         }
 
         /// <inheritdoc/>
-        public Task ErrorAsync(string value, Exception error = null)
+        public Task ErrorAsync(string content, string stackTrace)
         {
-            return InsertLogEntryAsync("error", value, error);
+            return InsertLogEntryAsync(_signaler, "error", content, null, stackTrace);
         }
 
         /// <inheritdoc/>
-        public Task ErrorAsync(string value, string stackTrace)
+        public Task ErrorAsync(string content, Dictionary<string, string> meta, string stackTrace)
         {
-            return InsertLogEntryAsync("error", value, null, stackTrace);
+            return InsertLogEntryAsync(_signaler, "error", content, meta, stackTrace);
         }
 
         /// <inheritdoc/>
-        public Task FatalAsync(string value, Exception error = null)
+        public Task FatalAsync(string content)
         {
-            return InsertLogEntryAsync("fatal", value, error);
+            return InsertLogEntryAsync(_signaler, "fatal", content, null, null);
         }
 
         /// <inheritdoc/>
-        public Task InfoAsync(string value)
+        public Task FatalAsync(string content, Dictionary<string, string> meta)
         {
-            return InsertLogEntryAsync("info", value);
+            return InsertLogEntryAsync(_signaler, "fatal", content, meta, null);
+        }
+
+        /// <inheritdoc/>
+        public Task FatalAsync(string content, string stackTrace)
+        {
+            return InsertLogEntryAsync(_signaler, "fatal", content, null, stackTrace);
+        }
+
+        /// <inheritdoc/>
+        public Task FatalAsync(string content, Dictionary<string, string> meta, string stackTrace)
+        {
+            return InsertLogEntryAsync(_signaler, "fatal", content, meta, stackTrace);
         }
 
         /// <inheritdoc/>
@@ -117,7 +120,7 @@ namespace magic.lambda.logging.services
                 using (var command = connection.CreateCommand())
                 {
                     var builder = new StringBuilder();
-                    builder.Append("select id, created, type, content, exception from log_entries");
+                    builder.Append("select id, created, type, content, exception, meta from log_entries");
                     if (fromId != null)
                     {
                         builder.Append(" where ");
@@ -138,6 +141,7 @@ namespace magic.lambda.logging.services
                                 Type = reader["type"] as string,
                                 Content = reader["content"] as string,
                                 Exception = reader["exception"] as string,
+                                Meta = reader["meta"] as string,
                             });
                         }
                         return result;
@@ -290,10 +294,11 @@ namespace magic.lambda.logging.services
         #region [ -- Private helper methods and properties -- ]
 
         async Task InsertLogEntryAsync(
+            ISignaler signaler,
             string type,
             string content,
-            Exception error = null, 
-            string stackTrace = null)
+            Dictionary<string, string> meta,
+            string stackTrace)
         {
             // Retrieving IDbConnection to use.
             var dbType = _magicConfiguration["magic:databases:default"];
@@ -330,7 +335,7 @@ namespace magic.lambda.logging.services
                     await connection.OpenAsync();
 
                     // Creating our insert commend.
-                    using (var cmd = CreateCommand(connection, dbType, type, content, error, stackTrace))
+                    using (var cmd = CreateCommand(signaler, connection, dbType, type, content, meta, stackTrace))
                     {
                         await cmd.ExecuteNonQueryAsync();
                     }
@@ -342,11 +347,12 @@ namespace magic.lambda.logging.services
          * Creates an IDbCommand that inserts into log database, and returns the command to caller.
          */
         static DbCommand CreateCommand(
+            ISignaler signaler,
             DbConnection connection,
             string dbType,
             string type,
             string content,
-            Exception error,
+            Dictionary<string, string> meta,
             string stackTrace)
         {
             // Creating our SQL command.
@@ -355,13 +361,15 @@ namespace magic.lambda.logging.services
             if (dbType == "mysql")
                 builder.Append("set time_zone = '+00:00'; ");
             builder.Append("insert into log_entries (type, content");
-            if (error != null || stackTrace != null)
+            if (stackTrace != null)
                 builder.Append(", exception");
+            if (meta != null && meta.Count > 0)
+                builder.Append(", meta");
             builder.Append(") values (@type, @content");
-            if (error != null)
+            if (stackTrace != null)
                 builder.Append(", @exception");
-            else if (stackTrace != null)
-                builder.Append(", @exception");
+            if (meta != null && meta.Count > 0)
+                builder.Append(", @meta");
             builder.Append(")");
             command.CommandText = builder.ToString();
 
@@ -376,12 +384,24 @@ namespace magic.lambda.logging.services
             contentArg.Value = content;
             command.Parameters.Add(contentArg);
 
-            if (error != null || stackTrace != null)
+            if (stackTrace != null)
             {
                 var exceptionArg = command.CreateParameter();
                 exceptionArg.ParameterName = "@exception";
-                exceptionArg.Value = stackTrace ?? error.StackTrace;
+                exceptionArg.Value = stackTrace;
                 command.Parameters.Add(exceptionArg);
+            }
+
+            if (meta != null && meta.Count > 0)
+            {
+                var node = new Node();
+                node.AddRange(meta.Select(x => new Node(x.Key, x.Value)));
+                signaler.Signal("lambda2json", node);
+
+                var metaArg = command.CreateParameter();
+                metaArg.ParameterName = "@meta";
+                metaArg.Value = node.Value;
+                command.Parameters.Add(metaArg);
             }
 
             // Returning command to caller.

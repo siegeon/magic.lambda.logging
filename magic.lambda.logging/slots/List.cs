@@ -56,6 +56,18 @@ namespace magic.lambda.logging.slots
                 tmp.Add(new Node("created", idx.Created));
                 tmp.Add(new Node("content", idx.Content));
                 tmp.Add(new Node("exception", idx.Exception));
+
+                // Retrieving meta.
+                if (!string.IsNullOrEmpty(idx.Meta))
+                {
+                    var jsonNode = new Node("", idx.Meta);
+                    signaler.Signal("json2lambda", jsonNode);
+                    var metaNode = new Node("meta");
+                    metaNode.AddRange(jsonNode.Children.ToList());
+                    tmp.Add(metaNode);
+                }
+
+                // Returning node to caller.
                 input.Add(tmp);
             }
         }

@@ -2,8 +2,10 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
+using System.Linq;
 using System.Threading.Tasks;
 using magic.node;
+using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.logging.helpers;
 using magic.lambda.logging.contracts;
@@ -34,8 +36,7 @@ namespace magic.lambda.logging.slots
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            _logger.Fatal(Utilities.GetLogContent(input, signaler));
-            input.Clear(); // House cleaning.
+            SignalAsync(signaler, input).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -45,8 +46,13 @@ namespace magic.lambda.logging.slots
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            await _logger.FatalAsync(Utilities.GetLogContent(input, signaler));
-            input.Clear(); // House cleaning.
+            var args = Utilities.GetLogContent(input, signaler);
+            await _logger.FatalAsync(
+                args.Content,
+                args.Meta,
+                input.Children.FirstOrDefault(x => x.Name == "exception")?.GetEx<string>());
+            input.Clear();
+            input.Value = null;
         }
     }
 }

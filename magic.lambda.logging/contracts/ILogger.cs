@@ -2,80 +2,108 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
-using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace magic.lambda.logging.contracts
 {
     /// <summary>
-    /// Interface to allow usage of any actual logging implementation.
+    /// Log interface to log errors and events occurring in the system.
     /// </summary>
     public interface ILogger
     {
         /// <summary>
         /// Logs a debug entry.
         /// </summary>
-        /// <param name="value">Entry to log.</param>
-        void Debug(string value);
+        /// <param name="content">Entry to log.</param>
+        /// <returns>Awaitable task.</returns>
+        Task DebugAsync(string content);
 
         /// <summary>
         /// Logs a debug entry.
         /// </summary>
-        /// <param name="value">Entry to log.</param>
-        Task DebugAsync(string value);
+        /// <param name="content">Entry to log.</param>
+        /// <param name="meta">Additional meta information associated with log entry.</param>
+        /// <returns>Awaitable task.</returns>
+        Task DebugAsync(string content, Dictionary<string, string> meta);
 
         /// <summary>
         /// Logs an info entry.
         /// </summary>
-        /// <param name="value">Entry to log.</param>
-        void Info(string value);
+        /// <param name="content">Entry to log.</param>
+        /// <returns>Awaitable task.</returns>
+        Task InfoAsync(string content);
 
         /// <summary>
         /// Logs an info entry.
         /// </summary>
-        /// <param name="value">Entry to log.</param>
-        Task InfoAsync(string value);
+        /// <param name="content">Entry to log.</param>
+        /// <param name="meta">Additional meta information associated with log entry.</param>
+        /// <returns>Awaitable task.</returns>
+        Task InfoAsync(string content, Dictionary<string, string> meta);
 
         /// <summary>
         /// Logs an error, optionally associated with an exception.
         /// </summary>
-        /// <param name="value">Entry to log.</param>
-        /// <param name="error">Exception to log.</param>
-        void Error(string value, Exception error = null);
+        /// <param name="content">Entry to log.</param>
+        /// <returns>Awaitable task.</returns>
+        Task ErrorAsync(string content);
 
         /// <summary>
         /// Logs an error, optionally associated with an exception.
         /// </summary>
-        /// <param name="value">Entry to log.</param>
+        /// <param name="content">Entry to log.</param>
+        /// <param name="meta">Additional meta information associated with log entry.</param>
+        /// <returns>Awaitable task.</returns>
+        Task ErrorAsync(string content, Dictionary<string, string> meta);
+
+        /// <summary>
+        /// Logs an error, optionally associated with an exception.
+        /// </summary>
+        /// <param name="content">Entry to log.</param>
         /// <param name="stackTrace">Stack trace of exception.</param>
-        void Error(string value, string stackTrace);
+        /// <returns>Awaitable task.</returns>
+        Task ErrorAsync(string content, string stackTrace);
 
         /// <summary>
         /// Logs an error, optionally associated with an exception.
         /// </summary>
-        /// <param name="value">Entry to log.</param>
-        /// <param name="error">Exception to log.</param>
-        Task ErrorAsync(string value, Exception error = null);
+        /// <param name="content">Entry to log.</param>
+        /// <param name="meta">Additional meta information associated with log entry.</param>
+        /// <param name="stackTrace">Stack trace of exception.</param>
+        /// <returns>Awaitable task.</returns>
+        Task ErrorAsync(string content, Dictionary<string, string> meta, string stackTrace);
 
         /// <summary>
-        /// Logs an error, optionally associated with an exception.
+        /// Logs a fatal error.
         /// </summary>
-        /// <param name="value">Entry to log.</param>
-        /// <param name="stackTrace">Exception to log.</param>
-        Task ErrorAsync(string value, string stackTrace);
+        /// <param name="content">Entry to log.</param>
+        /// <returns>Awaitable task.</returns>
+        Task FatalAsync(string content);
+
+        /// <summary>
+        /// Logs a fatal error.
+        /// </summary>
+        /// <param name="content">Entry to log.</param>
+        /// <param name="meta">Additional meta information associated with log entry.</param>
+        /// <returns>Awaitable task.</returns>
+        Task FatalAsync(string content, Dictionary<string, string> meta);
 
         /// <summary>
         /// Logs a fatal error, optionally associated with an exception.
         /// </summary>
-        /// <param name="value">Entry to log.</param>
-        /// <param name="error">Exception to log.</param>
-        void Fatal(string value, Exception error = null);
+        /// <param name="content">Entry to log.</param>
+        /// <param name="stackTrace">Stack trace of exception.</param>
+        /// <returns>Awaitable task.</returns>
+        Task FatalAsync(string content, string stackTrace);
 
         /// <summary>
         /// Logs a fatal error, optionally associated with an exception.
         /// </summary>
-        /// <param name="value">Entry to log.</param>
-        /// <param name="error">Exception to log.</param>
-        Task FatalAsync(string value, Exception error = null);
+        /// <param name="content">Entry to log.</param>
+        /// <param name="meta">Additional meta information associated with log entry.</param>
+        /// <param name="stackTrace">Stack trace of exception.</param>
+        /// <returns>Awaitable task.</returns>
+        Task FatalAsync(string content, Dictionary<string, string> meta, string stackTrace);
     }
 }

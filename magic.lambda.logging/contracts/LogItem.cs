@@ -40,5 +40,11 @@ namespace magic.lambda.logging.contracts
         /// </summary>
         /// <value>Exception stack trace.</value>
         public string Exception { get; set; }
+
+        /// <summary>
+        /// Meta data associated with log entry.
+        /// </summary>
+        /// <value>Meta data.</value>
+        public string Meta { get; set; }
     }
 }
