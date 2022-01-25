@@ -8,6 +8,7 @@ using System.Text;
 using System.Data.Common;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using magic.node;
 using magic.node.contracts;
 using magic.node.extensions;
@@ -134,6 +135,8 @@ namespace magic.lambda.logging.services
                         while (await reader.ReadAsync())
                         {
                             var dt = (DateTime)reader["created"];
+                            var jString = reader["meta"] as string;
+                            var metaObj = jString == null ? null : JObject.Parse(jString);
                             result.Add(new LogItem
                             {
                                 Id = Convert.ToString(reader["id"]),
@@ -141,7 +144,7 @@ namespace magic.lambda.logging.services
                                 Type = reader["type"] as string,
                                 Content = reader["content"] as string,
                                 Exception = reader["exception"] as string,
-                                Meta = reader["meta"] as string,
+                                Meta = metaObj?.ToObject<Dictionary<string, string>>(),
                             });
                         }
                         return result;
@@ -274,6 +277,8 @@ namespace magic.lambda.logging.services
                         if (await reader.ReadAsync())
                         {
                             var dt = (DateTime)reader["created"];
+                            var jString = reader["meta"] as string;
+                            var metaObj = jString == null ? null : JObject.Parse(jString);
                             return new LogItem
                             {
                                 Id = Convert.ToString(reader["id"]),
@@ -281,6 +286,7 @@ namespace magic.lambda.logging.services
                                 Type = reader["type"] as string,
                                 Content = reader["content"] as string,
                                 Exception = reader["exception"] as string,
+                                Meta = metaObj?.ToObject<Dictionary<string, string>>(),
                             };
                         }
                         throw new HyperlambdaException($"Couldn't find log item with ID '{id}'");

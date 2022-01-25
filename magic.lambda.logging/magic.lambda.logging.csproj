@@ -42,6 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="magic.node.extensions" Version="10.0.19" />
     <PackageReference Include="magic.signals.contracts" Version="10.0.19" />
   </ItemGroup>

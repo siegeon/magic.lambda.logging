@@ -3,6 +3,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace magic.lambda.logging.contracts
 {
@@ -45,6 +46,6 @@ namespace magic.lambda.logging.contracts
         /// Meta data associated with log entry.
         /// </summary>
         /// <value>Meta data.</value>
-        public string Meta { get; set; }
+        public Dictionary<string, string> Meta { get; set; }
     }
 }

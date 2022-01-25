@@ -2,8 +2,10 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
+using System.Linq;
 using System.Threading.Tasks;
 using magic.node;
+using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.logging.helpers;
 using magic.lambda.logging.contracts;
@@ -44,6 +46,9 @@ namespace magic.lambda.logging.slots
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
+            if (input.Children.Any(x => x.Name == "exception"))
+                throw new HyperlambdaException("You [log.error] or [log.fatal] to log exceptions");
+
             var args = Utilities.GetLogContent(input, signaler);
             await _logger.DebugAsync(args.Content, args.Meta);
             input.Clear();
