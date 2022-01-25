@@ -194,34 +194,6 @@ namespace magic.lambda.logging.services
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<(string Type, long Count)>> Types()
-        {
-            var dbNode = new Node();
-            var dbType = _magicConfiguration["magic:databases:default"];
-            await _signaler.SignalAsync($".db-factory.connection.{dbType}", dbNode);
-            using (var connection = dbNode.Get<DbConnection>())
-            {
-                connection.ConnectionString = _magicConfiguration[$"magic:databases:{dbType}:generic"].Replace("{database}", "magic");
-                await connection.OpenAsync();
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "select count(*) as count, type from log_entries group by type";
-                    using (var reader = await command.ExecuteReaderAsync())
-                    {
-                        var result = new List<(string Type, long Count)>();
-                        while (await reader.ReadAsync())
-                        {
-                            var type = reader["type"] as string;
-                            var count = Convert.ToInt64(reader["count"]);
-                            result.Add((type, count));
-                        }
-                        return result;
-                    }
-                }
-            }
-        }
-
-        /// <inheritdoc/>
         public async Task<IEnumerable<(string When, long Count)>> Timeshift(string content)
         {
             var dbNode = new Node();

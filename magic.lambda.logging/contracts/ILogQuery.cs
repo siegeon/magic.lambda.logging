@@ -29,12 +29,6 @@ namespace magic.lambda.logging.contracts
         Task<long> CountAsync(string content = null);
 
         /// <summary>
-        /// Returns number of log items according to type.
-        /// </summary>
-        /// <returns>Type and count.</returns>
-        Task<IEnumerable<(string Type, long Count)>> Types();
-
-        /// <summary>
         /// Returns log items matching the specified filtering condition grouped by dates for the last two weeks.
         /// </summary>
         /// <returns>Type and count.</returns>
