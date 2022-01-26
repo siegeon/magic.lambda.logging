@@ -265,7 +265,6 @@ namespace magic.lambda.logging.services
                     command.CommandText = builder.ToString();
                     using (var reader = await command.ExecuteReaderAsync())
                     {
-                        var result = new List<LogItem>();
                         if (await reader.ReadAsync())
                         {
                             var dt = (DateTime)reader["created"];
