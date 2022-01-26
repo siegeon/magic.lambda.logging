@@ -2,19 +2,17 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
-using System.Threading.Tasks;
 using magic.node;
 using magic.signals.contracts;
 using magic.lambda.logging.contracts;
-using magic.node.extensions;
 
 namespace magic.lambda.logging.slots
 {
     /// <summary>
-    /// [log.count] slot for counting total number of log items, optionally matching specified content type.
+    /// [log.capabilities] slot for returning the capabilities of the log implementation.
     /// </summary>
-    [Slot(Name = "log.count")]
-    public class Count : ISlotAsync, ISlot
+    [Slot(Name = "log.capabilities")]
+    public class Capabilities : ISlot
     {
         readonly ILogQuery _query;
 
@@ -22,7 +20,7 @@ namespace magic.lambda.logging.slots
         /// Creates an instance of your type.
         /// </summary>
         /// <param name="query">Actual implementation.</param>
-        public Count(ILogQuery query)
+        public Capabilities(ILogQuery query)
         {
             _query = query;
         }
@@ -34,17 +32,9 @@ namespace magic.lambda.logging.slots
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            SignalAsync(signaler, input).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Slot implementation.
-        /// </summary>
-        /// <param name="signaler">Signaler that raised the signal.</param>
-        /// <param name="input">Arguments to slot.</param>
-        public async Task SignalAsync(ISignaler signaler, Node input)
-        {
-            input.Value = await _query.CountAsync(input.GetEx<string>());
+            var cap = _query.Capabilities();
+            input.Add(new Node("can-filter", cap.CanFilter));
+            input.Add(new Node("can-timeshift", cap.CanTimeShift));
         }
     }
 }

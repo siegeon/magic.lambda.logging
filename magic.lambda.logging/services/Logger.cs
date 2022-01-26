@@ -36,6 +36,8 @@ namespace magic.lambda.logging.services
 
         #region [ -- Interface implementations -- ]
 
+        #region [ -- ILogger interface implementation -- ]
+
         /// <inheritdoc/>
         public Task DebugAsync(string content)
         {
@@ -107,6 +109,10 @@ namespace magic.lambda.logging.services
         {
             return InsertLogEntryAsync(_signaler, "fatal", content, meta, stackTrace);
         }
+
+        #endregion
+
+        #region [ -- ILogQuery interface implementation -- ]
 
         /// <inheritdoc/>
         public async Task<IEnumerable<LogItem>> QueryAsync(int max, object fromId, string content = null)
@@ -285,6 +291,18 @@ namespace magic.lambda.logging.services
                 }
             }
         }
+
+        /// <inheritdoc/>
+        public Capabilities Capabilities()
+        {
+            return new Capabilities
+            {
+                CanFilter = true,
+                CanTimeShift = true,
+            };
+        }
+
+        #endregion
 
         #endregion
 

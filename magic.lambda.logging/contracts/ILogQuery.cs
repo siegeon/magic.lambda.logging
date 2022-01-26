@@ -40,5 +40,11 @@ namespace magic.lambda.logging.contracts
         /// <param name="id">ID of item to return</param>
         /// <returns>Item with specified ID.</returns>
         Task<LogItem> Get(object id);
+
+        /// <summary>
+        /// Returns the capabilities of the log implementation.
+        /// </summary>
+        /// <returns>Capabilities for currently used log implementation.</returns>
+        Capabilities Capabilities();
     }
 }

@@ -15,7 +15,7 @@ basic statistics from your log. These can be found below.
 * __[log.count]__ - Counts number of log items, optionally matching the specified filter condition
 * __[log.get]__ - Returns the log item with the specified id
 * __[log.query]__ - Returns a list of log items according to its arguments
-* __[log.timeshift]__ - Returns statistics of how many times the log item matching the specified filter have been seen per day the last 2 weeks
+* __[log.capabilities]__ - Returns the capabilities of the log implementation
 
 By default, this project will log into your `magic.log_entries` database/table, using either MySQL, PostgreSQL, or
 Microsoft SQL Server. This allows you to use SQL to generate statistics on top of your logs. However, the project
@@ -64,6 +64,11 @@ in the exception column as you log the item. All other parameters will still be 
 
 ## Querying your log
 
+**Notice** - To see the capabilities of your particular log implementation please invoke **[log.capabilities]** and verify
+your particular log implementation can actually do what you need for it to do, since not all implementations have the
+same capabilities - Implying things such as filtering log items according to content, and/or timeshifting log items, etc,
+might not be implemented for your particular implementation.
+
 To retrieve log items sequentially you can use **[log.query]**. This slot can optionally take a **[from]** argument
 being the id of an existing log item from where to start retrieving items, and a **[max]** argument being the maximum
 number of records to return. If no **[max]** argument is specified, the default value of this is 10. In addition the
@@ -80,28 +85,9 @@ The above will return log items starting from id 554 and down, and return only 2
 will have a content value of _"We successfully authenticated user 'root'"_. To return a single log item you can use
 **[log.get]**  and pass in the id of the log item you want to retrieve as its value.
 
-**[log.timeshift]** will return count of items per day the last 14 days matching the specified filter
-given as the value of the slot. Below is an example.
-
-```
-log.timeshift:"We successfully authenticated user 'root'"
-```
-
-The above will return something resembling the following.
-
-```
-log.timeshift
-   .
-      when:2022-01-26
-      count:long:3
-   .
-      when:2022-01-25
-      count:long:5
-   .
-      when:2022-01-24
-      count:long:2
-// Etc ...
-```
+**Notice** - If your particular log implementation does not support querying you _cannot_ query items
+according to content as illustrated above, but rather only page items. Invoke **[log.capabilities]** to see if
+your implementation supports querying before relying upon its existence.
 
 ## Project website
 
