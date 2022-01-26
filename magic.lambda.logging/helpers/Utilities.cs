@@ -11,8 +11,14 @@ using magic.signals.contracts;
 
 namespace magic.lambda.logging.helpers
 {
+    /*
+     * Internal utility class.
+     */
     internal static class Utilities
     {
+        /*
+         * Utility method to create new log item from specified node.
+         */
         public static (string Content, Dictionary<string, string> Meta) GetLogContent(Node node, ISignaler signaler)
         {
             if (node.Value != null)
