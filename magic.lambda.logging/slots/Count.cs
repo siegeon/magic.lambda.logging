@@ -4,9 +4,9 @@
 
 using System.Threading.Tasks;
 using magic.node;
+using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.logging.contracts;
-using magic.node.extensions;
 
 namespace magic.lambda.logging.slots
 {
