@@ -263,7 +263,7 @@ namespace magic.lambda.logging.services
                 using (var command = connection.CreateCommand())
                 {
                     var builder = new StringBuilder();
-                    builder.Append("select id, created, type, content, exception from log_entries where id = @id");
+                    builder.Append("select id, created, type, content, exception, meta from log_entries where id = @id");
                     var filter = command.CreateParameter();
                     filter.ParameterName = "@id";
                     filter.Value = id;
